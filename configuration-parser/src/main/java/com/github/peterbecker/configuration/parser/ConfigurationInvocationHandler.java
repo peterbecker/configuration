@@ -1,21 +1,19 @@
-package com.github.peterbecker.configuration.proxy;
-
-import com.github.peterbecker.configuration.storage.Key;
-import com.github.peterbecker.configuration.storage.Store;
+package com.github.peterbecker.configuration.parser;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
- * Binds calls to the configuration interface to the Store used.
+ * Binds calls to the configuration interface to the data extracted.
  */
 public class ConfigurationInvocationHandler<T> implements InvocationHandler {
     private final Class<T> configurationInterface;
-    private final Store store;
+    private final Map<String, Object> data;
 
-    public ConfigurationInvocationHandler(Class<T> configurationInterface, Store store) {
-        this.store = store;
+    public ConfigurationInvocationHandler(Class<T> configurationInterface, Map<String, Object> data) {
         this.configurationInterface = configurationInterface;
+        this.data = data;
     }
 
     @Override
@@ -23,6 +21,6 @@ public class ConfigurationInvocationHandler<T> implements InvocationHandler {
         assert configurationInterface.isAssignableFrom(proxy.getClass());
         assert args == null;
 
-        return store.getValue(new Key(method.getName())).get();
+        return data.get(method.getName());
     }
 }

@@ -1,6 +1,6 @@
 package com.github.peterbecker.configuration;
 
-import com.github.peterbecker.configuration.proxy.ConfigurationInvocationHandler;
+import com.github.peterbecker.configuration.parser.InterfaceParser;
 import com.github.peterbecker.configuration.storage.PropertiesStore;
 import com.github.peterbecker.configuration.storage.Store;
 
@@ -13,7 +13,7 @@ import java.util.Properties;
 /**
  * The main entry point for parsing configuration files.
  */
-public class ConfigurationParser {
+public class Configuration {
     public static <T> T fromPropertiesFile(Class<T> configurationInterface, Path propertiesFile) throws ConfigurationException {
         Properties properties = new Properties();
         try {
@@ -24,16 +24,16 @@ public class ConfigurationParser {
         return fromProperties(configurationInterface, properties);
     }
 
-    public static <T> T fromProperties(Class<T> configurationInterface, Properties properties) {
+    public static <T> T fromProperties(Class<T> configurationInterface, Properties properties) throws ConfigurationException {
         return fromStore(configurationInterface, new PropertiesStore(properties));
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T fromStore(Class<T> configurationInterface, Store store) {
+    public static <T> T fromStore(Class<T> configurationInterface, Store store) throws ConfigurationException {
         return (T) Proxy.newProxyInstance(
                 configurationInterface.getClassLoader(),
                 new Class[]{configurationInterface},
-                new ConfigurationInvocationHandler<>(configurationInterface, store)
+                InterfaceParser.parse(configurationInterface, store)
         );
     }
 }
