@@ -15,4 +15,29 @@
         <module>configuration-api</module>
         <module>configuration-parser</module>
     </modules>
+
+    <!-- No dependency management for now. The API is intended to have no external dependencies, so we can manage the
+         dependencies directly in the parser module. -->
+
+    <!-- From here everything is about setting up a stable Java 8 Maven project. This should be in a separate parent
+         project, but for now we won't do that for ease of build/deployment. -->
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.2</version>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>
