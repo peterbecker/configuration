@@ -52,5 +52,10 @@ public class StandardValueParsingTest {
         assertThat(config.presentOptionalBoolean(), equalTo(Optional.of(false)));
         assertThat(config.absentOptionalBoolean(), equalTo(Optional.<Boolean>empty()));
         assertThat(config.requiredPrimitiveBoolean(), equalTo(true));
+
+        assertThat(config.requiredCharacter(), equalTo('\u263A'));
+        assertThat(config.presentOptionalCharacter(), equalTo(Optional.of('\u2603')));
+        assertThat(config.absentOptionalCharacter(), equalTo(Optional.<Character>empty()));
+        assertThat(config.requiredPrimitiveChar(), equalTo('\u270E'));
     }
 }

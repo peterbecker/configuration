@@ -47,5 +47,10 @@ public interface TestInterfaceStandardValueTypes {
     Optional<Boolean> absentOptionalBoolean();
     boolean requiredPrimitiveBoolean();
 
+    Character requiredCharacter();
+    Optional<Character> presentOptionalCharacter();
+    Optional<Character> absentOptionalCharacter();
+    char requiredPrimitiveChar();
+
     // TODO: date and time
 }

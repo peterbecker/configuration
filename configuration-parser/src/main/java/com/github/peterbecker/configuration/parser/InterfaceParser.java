@@ -36,6 +36,18 @@ public class InterfaceParser {
         VALUE_PARSERS.put(Double.TYPE, Double::parseDouble);
         VALUE_PARSERS.put(Boolean.class, Boolean::valueOf);
         VALUE_PARSERS.put(Boolean.TYPE, Boolean::parseBoolean);
+        VALUE_PARSERS.put(Character.class, InterfaceParser::getSoleCharacter);
+        VALUE_PARSERS.put(Character.TYPE, InterfaceParser::getSoleCharacter);
+    }
+
+    public static char getSoleCharacter(String s) {
+        if(s.isEmpty()) {
+            throw new IllegalArgumentException("Missing value");
+        }
+        if(s.length() > 1) {
+            throw new IllegalArgumentException("More than one character");
+        }
+        return s.charAt(0);
     }
 
     public static <T> ConfigurationInvocationHandler<T> parse(Class<T> configClass, Store store) throws ConfigurationException {
