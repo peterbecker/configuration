@@ -17,11 +17,35 @@ public interface TestInterfaceStandardValueTypes {
     Optional<Integer> absentOptionalInteger();
     int requiredPrimitiveInt();
 
-    // TODO: other wrappers, date and time
+    Long requiredLong();
+    Optional<Long> presentOptionalLong();
+    Optional<Long> absentOptionalLong();
     long requiredPrimitiveLong();
+
+    Short requiredShort();
+    Optional<Short> presentOptionalShort();
+    Optional<Short> absentOptionalShort();
     short requiredPrimitiveShort();
+
+    Byte requiredByte();
+    Optional<Byte> presentOptionalByte();
+    Optional<Byte> absentOptionalByte();
     byte requiredPrimitiveByte();
+
+    Float requiredFloat();
+    Optional<Float> presentOptionalFloat();
+    Optional<Float> absentOptionalFloat();
     float requiredPrimitiveFloat();
+
+    Double requiredDouble();
+    Optional<Double> presentOptionalDouble();
+    Optional<Double> absentOptionalDouble();
     double requiredPrimitiveDouble();
+
+    Boolean requiredBoolean();
+    Optional<Boolean> presentOptionalBoolean();
+    Optional<Boolean> absentOptionalBoolean();
     boolean requiredPrimitiveBoolean();
+
+    // TODO: date and time
 }
