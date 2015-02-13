@@ -51,6 +51,4 @@ public interface TestInterfaceStandardValueTypes {
     Optional<Character> presentOptionalCharacter();
     Optional<Character> absentOptionalCharacter();
     char requiredPrimitiveChar();
-
-    // TODO: date and time
 }

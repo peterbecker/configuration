@@ -4,7 +4,9 @@ import org.junit.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.*;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -12,7 +14,7 @@ import static org.junit.Assert.assertThat;
 public class StandardValueParsingTest {
     @Test
     public void testStandardValueParsing() throws Exception {
-        Path testFile = Paths.get(CoreStuctureParsingTest.class.getResource("/valueTypes.properties").toURI());
+        Path testFile = Paths.get(StandardValueParsingTest.class.getResource("/valueTypes.properties").toURI());
         TestInterfaceStandardValueTypes config = Configuration.fromPropertiesFile(TestInterfaceStandardValueTypes.class, testFile);
         assertThat(config.requiredString(), equalTo("Test"));
         assertThat(config.presentOptionalString(), equalTo(Optional.of("Also Test")));
@@ -28,15 +30,15 @@ public class StandardValueParsingTest {
         assertThat(config.absentOptionalLong(), equalTo(Optional.<Long>empty()));
         assertThat(config.requiredPrimitiveLong(), equalTo(12345L));
 
-        assertThat(config.requiredShort(), equalTo((short)234));
-        assertThat(config.presentOptionalShort(), equalTo(Optional.of((short)345)));
+        assertThat(config.requiredShort(), equalTo((short) 234));
+        assertThat(config.presentOptionalShort(), equalTo(Optional.of((short) 345)));
         assertThat(config.absentOptionalShort(), equalTo(Optional.<Short>empty()));
-        assertThat(config.requiredPrimitiveShort(), equalTo((short)123));
+        assertThat(config.requiredPrimitiveShort(), equalTo((short) 123));
 
-        assertThat(config.requiredByte(), equalTo((byte)12));
-        assertThat(config.presentOptionalByte(), equalTo(Optional.of((byte)21)));
+        assertThat(config.requiredByte(), equalTo((byte) 12));
+        assertThat(config.presentOptionalByte(), equalTo(Optional.of((byte) 21)));
         assertThat(config.absentOptionalByte(), equalTo(Optional.<Byte>empty()));
-        assertThat(config.requiredPrimitiveByte(), equalTo((byte)78));
+        assertThat(config.requiredPrimitiveByte(), equalTo((byte) 78));
 
         assertThat(config.requiredFloat(), equalTo(12.21F));
         assertThat(config.presentOptionalFloat(), equalTo(Optional.of(34.453F)));
@@ -57,5 +59,36 @@ public class StandardValueParsingTest {
         assertThat(config.presentOptionalCharacter(), equalTo(Optional.of('\u2603')));
         assertThat(config.absentOptionalCharacter(), equalTo(Optional.<Character>empty()));
         assertThat(config.requiredPrimitiveChar(), equalTo('\u270E'));
+    }
+
+    /**
+     * Tests the types of JSR 310.
+     * <p/>
+     * This is testing one format each to ensure the wiring of the corresponding parse function is ok. We are not trying
+     * to test all parse alternatives offered by the JSR 310 APIs. In some cases we are lazy enough to just parse the
+     * expected value as well since other constructions are complicated.
+     */
+    @Test
+    public void testDateTime() throws Exception {
+        Path testFile = Paths.get(StandardValueParsingTest.class.getResource("/dateTime.properties").toURI());
+        TestInterfaceDateAndTime config = Configuration.fromPropertiesFile(TestInterfaceDateAndTime.class, testFile);
+        assertThat(config.duration(), equalTo(
+                Duration.ofMinutes(
+                        TimeUnit.DAYS.toMinutes(2) + TimeUnit.HOURS.toMinutes(3) + 4
+                )
+        ));
+        assertThat(config.instant(), equalTo(Instant.parse("2007-12-03T10:15:30.00Z")));
+        assertThat(config.localDate(), equalTo(LocalDate.of(2007, 12, 3)));
+        assertThat(config.localDateTime(), equalTo(LocalDateTime.of(2007, 12, 3, 10, 15, 30)));
+        assertThat(config.localTime(), equalTo(LocalTime.of(10, 15, 30)));
+        assertThat(config.monthDay(), equalTo(MonthDay.of(Month.DECEMBER, 3)));
+        assertThat(config.offsetDateTime(), equalTo(OffsetDateTime.of(2007, 12, 3, 10, 15, 30, 0, ZoneOffset.ofHours(1))));
+        assertThat(config.offsetTime(), equalTo(OffsetTime.of(10, 15, 30, 0, ZoneOffset.ofHours(1))));
+        assertThat(config.period(), equalTo(Period.of(1, 2, 25)));
+        assertThat(config.year(), equalTo(Year.of(2015)));
+        assertThat(config.yearMonth(), equalTo(YearMonth.of(2015, 2)));
+        assertThat(config.zonedDateTime(), equalTo(ZonedDateTime.of(2007, 12, 3, 10, 15, 30, 0, ZoneId.of("Europe/Paris"))));
+        assertThat(config.zoneId(), equalTo(ZoneId.of("Australia/Brisbane")));
+        assertThat(config.zoneOffset(), equalTo(ZoneOffset.ofHoursMinutes(-9, -30)));
     }
 }

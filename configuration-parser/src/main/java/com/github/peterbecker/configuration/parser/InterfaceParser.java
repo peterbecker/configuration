@@ -6,6 +6,7 @@ import com.github.peterbecker.configuration.storage.Store;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.time.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -38,6 +39,21 @@ public class InterfaceParser {
         VALUE_PARSERS.put(Boolean.TYPE, Boolean::parseBoolean);
         VALUE_PARSERS.put(Character.class, InterfaceParser::getSoleCharacter);
         VALUE_PARSERS.put(Character.TYPE, InterfaceParser::getSoleCharacter);
+
+        VALUE_PARSERS.put(Duration.class, Duration::parse);
+        VALUE_PARSERS.put(Instant.class, Instant::parse);
+        VALUE_PARSERS.put(LocalDate.class, LocalDate::parse);
+        VALUE_PARSERS.put(LocalDateTime.class, LocalDateTime::parse);
+        VALUE_PARSERS.put(LocalTime.class, LocalTime::parse);
+        VALUE_PARSERS.put(MonthDay.class, MonthDay::parse);
+        VALUE_PARSERS.put(OffsetDateTime.class, OffsetDateTime::parse);
+        VALUE_PARSERS.put(OffsetTime.class, OffsetTime::parse);
+        VALUE_PARSERS.put(Period.class, Period::parse);
+        VALUE_PARSERS.put(Year.class, Year::parse);
+        VALUE_PARSERS.put(YearMonth.class, YearMonth::parse);
+        VALUE_PARSERS.put(ZonedDateTime.class, ZonedDateTime::parse);
+        VALUE_PARSERS.put(ZoneId.class, ZoneId::of);
+        VALUE_PARSERS.put(ZoneOffset.class, ZoneOffset::of);
     }
 
     public static char getSoleCharacter(String s) {
