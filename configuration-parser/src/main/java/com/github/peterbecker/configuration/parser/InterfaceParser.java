@@ -22,6 +22,20 @@ public class InterfaceParser {
 
     static {
         VALUE_PARSERS.put(String.class, Function.identity());
+        VALUE_PARSERS.put(Integer.class, Integer::valueOf);
+        VALUE_PARSERS.put(Integer.TYPE, Integer::parseInt);
+        VALUE_PARSERS.put(Long.class, Long::valueOf);
+        VALUE_PARSERS.put(Long.TYPE, Long::parseLong);
+        VALUE_PARSERS.put(Short.class, Short::valueOf);
+        VALUE_PARSERS.put(Short.TYPE, Short::parseShort);
+        VALUE_PARSERS.put(Byte.class, Byte::valueOf);
+        VALUE_PARSERS.put(Byte.TYPE, Byte::parseByte);
+        VALUE_PARSERS.put(Float.class, Float::valueOf);
+        VALUE_PARSERS.put(Float.TYPE, Float::parseFloat);
+        VALUE_PARSERS.put(Double.class, Double::valueOf);
+        VALUE_PARSERS.put(Double.TYPE, Double::parseDouble);
+        VALUE_PARSERS.put(Boolean.class, Boolean::valueOf);
+        VALUE_PARSERS.put(Boolean.TYPE, Boolean::parseBoolean);
     }
 
     public static <T> ConfigurationInvocationHandler<T> parse(Class<T> configClass, Store store) throws ConfigurationException {
