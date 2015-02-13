@@ -2,6 +2,7 @@ package com.github.peterbecker.configuration;
 
 import org.junit.Test;
 
+import java.awt.Color;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.*;
@@ -59,6 +60,14 @@ public class StandardValueParsingTest {
         assertThat(config.presentOptionalCharacter(), equalTo(Optional.of('\u2603')));
         assertThat(config.absentOptionalCharacter(), equalTo(Optional.<Character>empty()));
         assertThat(config.requiredPrimitiveChar(), equalTo('\u270E'));
+
+        assertThat(config.requiredAWTColor(), equalTo(Color.RED));
+        assertThat(config.presentOptionalAWTColor(), equalTo(Optional.of(new Color(255, 165, 0))));
+        assertThat(config.absentOptionalAWTColor(), equalTo(Optional.<Color>empty()));
+
+        assertThat(config.requiredJavaFXColor(), equalTo(javafx.scene.paint.Color.BLACK));
+        assertThat(config.presentOptionalJavaFXColor(), equalTo(Optional.of(javafx.scene.paint.Color.PURPLE)));
+        assertThat(config.absentOptionalJavaFXColor(), equalTo(Optional.<Color>empty()));
     }
 
     /**

@@ -1,11 +1,15 @@
 package com.github.peterbecker.configuration;
 
+import java.awt.*;
 import java.util.Optional;
 
 /**
  * An interface covering all the standard value types supported.
  *
- * Each has three variants: required, optional but present, optional and absent.
+ * Most have three or four variants: required, optional but present, optional and absent; plus maybe a primitive version
+ * (which is always required).
+ *
+ * Date and time are in a separate test interface {@linkplain com.github.peterbecker.configuration.TestInterfaceDateAndTime}.
  */
 public interface TestInterfaceStandardValueTypes {
     String requiredString();
@@ -51,4 +55,12 @@ public interface TestInterfaceStandardValueTypes {
     Optional<Character> presentOptionalCharacter();
     Optional<Character> absentOptionalCharacter();
     char requiredPrimitiveChar();
+
+    Color requiredAWTColor();
+    Optional<Color> presentOptionalAWTColor();
+    Optional<Color> absentOptionalAWTColor();
+
+    javafx.scene.paint.Color requiredJavaFXColor();
+    Optional<javafx.scene.paint.Color> presentOptionalJavaFXColor();
+    Optional<javafx.scene.paint.Color> absentOptionalJavaFXColor();
 }

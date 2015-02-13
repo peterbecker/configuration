@@ -4,6 +4,7 @@ import com.github.peterbecker.configuration.ConfigurationException;
 import com.github.peterbecker.configuration.storage.Key;
 import com.github.peterbecker.configuration.storage.Store;
 
+import java.awt.Color;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.time.*;
@@ -40,6 +41,9 @@ public class InterfaceParser {
         VALUE_PARSERS.put(Character.class, InterfaceParser::getSoleCharacter);
         VALUE_PARSERS.put(Character.TYPE, InterfaceParser::getSoleCharacter);
 
+        VALUE_PARSERS.put(Color.class, InterfaceParser::decodeAwtColor);
+        VALUE_PARSERS.put(javafx.scene.paint.Color.class, javafx.scene.paint.Color::valueOf);
+
         VALUE_PARSERS.put(Duration.class, Duration::parse);
         VALUE_PARSERS.put(Instant.class, Instant::parse);
         VALUE_PARSERS.put(LocalDate.class, LocalDate::parse);
@@ -56,7 +60,18 @@ public class InterfaceParser {
         VALUE_PARSERS.put(ZoneOffset.class, ZoneOffset::of);
     }
 
-    public static char getSoleCharacter(String s) {
+    /**
+     * Method to decode an AWT color encoded the JavaFX/web way.
+     *
+     * AWT has Color::decode, but that needs a full three byte integer value. JavaFX allows all CSS variants, including
+     * names.
+     */
+    private static Color decodeAwtColor(String s) {
+        javafx.scene.paint.Color color = javafx.scene.paint.Color.valueOf(s);
+        return new Color((float)color.getRed(), (float)color.getGreen(), (float)color.getBlue(), (float)color.getOpacity());
+    }
+
+    private static char getSoleCharacter(String s) {
         if(s.isEmpty()) {
             throw new IllegalArgumentException("Missing value");
         }
