@@ -7,16 +7,15 @@ import com.github.peterbecker.configuration.storage.Store;
 import java.awt.Color;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Proxy;
 import java.time.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 public class InterfaceParser {
     /**
      * Map of classes to functions parsing corresponding objects from a string.
-     * <p>
+     * <p/>
      * In this map the two type wildcards are covariant, i.e. the return value of a function in the value position is
      * the class in the key position.
      */
@@ -62,34 +61,47 @@ public class InterfaceParser {
 
     /**
      * Method to decode an AWT color encoded the JavaFX/web way.
-     *
+     * <p/>
      * AWT has Color::decode, but that needs a full three byte integer value. JavaFX allows all CSS variants, including
      * names.
      */
     private static Color decodeAwtColor(String s) {
         javafx.scene.paint.Color color = javafx.scene.paint.Color.valueOf(s);
-        return new Color((float)color.getRed(), (float)color.getGreen(), (float)color.getBlue(), (float)color.getOpacity());
+        return new Color((float) color.getRed(), (float) color.getGreen(), (float) color.getBlue(), (float) color.getOpacity());
     }
 
     private static char getSoleCharacter(String s) {
-        if(s.isEmpty()) {
+        if (s.isEmpty()) {
             throw new IllegalArgumentException("Missing value");
         }
-        if(s.length() > 1) {
+        if (s.length() > 1) {
             throw new IllegalArgumentException("More than one character");
         }
         return s.charAt(0);
     }
 
     public static <T> ConfigurationInvocationHandler<T> parse(Class<T> configClass, Store store) throws ConfigurationException {
+        return parse(configClass, store, Collections.emptyList());
+    }
+
+    private static <T> ConfigurationInvocationHandler<T> parse(Class<T> configClass, Store store, List<String> context) throws ConfigurationException {
         Map<String, Object> data = new HashMap<>();
         for (Method method : configClass.getMethods()) {
             validateMethod(method);
-            Optional<String> value = store.getValue(new Key(method.getName()));
+            Optional<String> value = store.getValue(new Key(context, method.getName()));
 
             Class<?> returnType = method.getReturnType();
-            if (returnType.equals(Optional.class)) {
-                Class<?> actualType = (Class<?>) ((ParameterizedType)method.getGenericReturnType()).getActualTypeArguments()[0];
+            if (returnType.isInterface()) {
+                List<String> newContext = new ArrayList<>(context);
+                newContext.add(method.getName());
+                data.put(method.getName(),
+                        Proxy.newProxyInstance(
+                                returnType.getClassLoader(),
+                                new Class[]{returnType},
+                                parse(returnType, store, newContext)
+                        ));
+            } else if (returnType.equals(Optional.class)) {
+                Class<?> actualType = (Class<?>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
                 Function<String, ?> valueParser = getValueParser(method, actualType);
                 data.put(method.getName(), value.map(valueParser));
             } else {
