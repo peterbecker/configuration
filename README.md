@@ -12,8 +12,8 @@ as part of a database layer, there is no need for the database layer to know any
 The interfaces also make testing easy: a test class can implement it in any way wanted, including just using an
 anonymous inner class.
 
-Values are parsed using handlers from Strings to the return type of the getters. A range of default handlers will be
-available, custom handlers can be added.
+Values are parsed using handlers from Strings to the return type of the getters. A range of default handlers is
+available, it will be possible to add custom handlers in the future.
 
 Additionally there will be support for advanced features such as printing usage instructions, dumping actual
 configuration into log files, and layering configuration sources to ease customization (e.g. default in classpath,
@@ -21,4 +21,4 @@ overridden by file, overridden by command line).
 
 Target platform is Java 8. There is no roadmap or schedule, but I'm available for questions.
 
-Check out the unit tests to see what works.
+Check out the unit tests to see what works. See the issue list for more detail on what is intended.
