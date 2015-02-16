@@ -5,6 +5,7 @@ import com.github.peterbecker.configuration.storage.Key;
 import com.github.peterbecker.configuration.storage.Store;
 
 import java.awt.Color;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
@@ -100,10 +101,38 @@ public class InterfaceParser {
                                 new Class[]{returnType},
                                 parse(returnType, store, newContext)
                         ));
+            } else if (returnType.isEnum()) {
+                if (!value.isPresent()) {
+                    throw new ConfigurationException("No value provided for mandatory option " + method.getName());
+                }
+                try {
+                    Method valueOf = returnType.getMethod("valueOf", String.class);
+                    data.put(method.getName(), valueOf.invoke(null, value.get()));
+                } catch (NoSuchMethodException e) {
+                    // this should never happen, but we re-throw to be sure we know if it does
+                    throw new ConfigurationException("Internal error, can not find valueOf method on enum", e);
+                } catch (InvocationTargetException | IllegalAccessException e) {
+                    throw new ConfigurationException("Can not find value " + value.get() + " for enum " + returnType.getCanonicalName());
+                }
             } else if (returnType.equals(Optional.class)) {
                 Class<?> actualType = (Class<?>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
-                Function<String, ?> valueParser = getValueParser(method, actualType);
-                data.put(method.getName(), value.map(valueParser));
+                if (actualType.isEnum()) {
+                    try {
+                        Method valueOf = actualType.getMethod("valueOf", String.class);
+                        data.put(
+                                method.getName(),
+                                value.isPresent() ? Optional.of(valueOf.invoke(null, value.get())) : Optional.empty()
+                        );
+                    } catch (NoSuchMethodException e) {
+                        // this should never happen, but we re-throw to be sure we know if it does
+                        throw new ConfigurationException("Internal error, can not find valueOf method on enum", e);
+                    } catch (InvocationTargetException | IllegalAccessException e) {
+                        throw new ConfigurationException("Can not find value " + value.get() + " for enum " + returnType.getCanonicalName());
+                    }
+                } else {
+                    Function<String, ?> valueParser = getValueParser(method, actualType);
+                    data.put(method.getName(), value.map(valueParser));
+                }
             } else {
                 if (!value.isPresent()) {
                     throw new ConfigurationException("No value provided for mandatory option " + method.getName());
