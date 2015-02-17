@@ -12,6 +12,7 @@
 
     <artifactId>configuration-parser</artifactId>
 
+    <name>configuration-parser</name>
     <description>Parser and command line handling for configuration.</description>
 
     <dependencies>

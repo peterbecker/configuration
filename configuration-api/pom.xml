@@ -12,6 +12,7 @@
 
     <artifactId>configuration-api</artifactId>
 
+    <name>configuration-api</name>
     <description>Annotation and generic interfaces for configuration.</description>
 
 </project>
