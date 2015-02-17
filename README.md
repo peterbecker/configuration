@@ -1,5 +1,7 @@
 # Configuration
 
+[![Build Status](https://travis-ci.org/peterbecker/configuration.svg?branch=master)](https://travis-ci.org/peterbecker/configuration)
+
 Early work in progress on a Java configuration library. Functional, but still limited. Tested, but not yet in anger.
 
 This is intended to re-do some work I have done as closed source previously. The idea is to use interfaces with
