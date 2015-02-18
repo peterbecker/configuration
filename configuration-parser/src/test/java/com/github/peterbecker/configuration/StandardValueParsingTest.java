@@ -18,7 +18,7 @@ public class StandardValueParsingTest {
     @Test
     public void testStandardValueParsing() throws Exception {
         Path testFile = Paths.get(StandardValueParsingTest.class.getResource("/valueTypes.properties").toURI());
-        TestInterfaceStandardValueTypes config = Configuration.fromPropertiesFile(TestInterfaceStandardValueTypes.class, testFile);
+        TestInterfaceStandardValueTypes config = Configuration.loadInterface(TestInterfaceStandardValueTypes.class).fromPropertiesFile(testFile).done();
         assertThat(config.requiredString(), equalTo("Test"));
         assertThat(config.presentOptionalString(), equalTo(Optional.of("Also Test")));
         assertThat(config.absentOptionalString(), equalTo(Optional.<String>empty()));
@@ -90,7 +90,7 @@ public class StandardValueParsingTest {
     @Test
     public void testDateTime() throws Exception {
         Path testFile = Paths.get(StandardValueParsingTest.class.getResource("/dateTime.properties").toURI());
-        TestInterfaceDateAndTime config = Configuration.fromPropertiesFile(TestInterfaceDateAndTime.class, testFile);
+        TestInterfaceDateAndTime config = Configuration.loadInterface(TestInterfaceDateAndTime.class).fromPropertiesFile(testFile).done();
         assertThat(config.duration(), equalTo(
                 Duration.ofMinutes(
                         TimeUnit.DAYS.toMinutes(2) + TimeUnit.HOURS.toMinutes(3) + 4

@@ -14,26 +14,52 @@ import java.util.Properties;
  * The main entry point for parsing configuration files.
  */
 public class Configuration {
-    public static <T> T fromPropertiesFile(Class<T> configurationInterface, Path propertiesFile) throws ConfigurationException {
-        Properties properties = new Properties();
-        try {
-            properties.load(Files.newInputStream(propertiesFile));
-        } catch (IOException e) {
-            throw new ConfigurationException("Can not read properties file " + propertiesFile.toString(), e);
+    public static <T> StoreCollector<T> loadInterface(Class<T> configurationInterface) {
+        return new StoreCollector<>(configurationInterface);
+    }
+
+    public static class StoreCollector<T> {
+        private final Class<T> configurationInterface;
+
+        public StoreCollector(Class<T> configurationInterface) {
+            this.configurationInterface = configurationInterface;
         }
-        return fromProperties(configurationInterface, properties);
+
+        public ConfigurationBuilder<T> fromPropertiesFile(Path propertiesFile) throws ConfigurationException {
+            Properties properties = new Properties();
+            try {
+                properties.load(Files.newInputStream(propertiesFile));
+            } catch (IOException e) {
+                throw new ConfigurationException("Can not read properties file " + propertiesFile.toString(), e);
+            }
+            return fromProperties(properties);
+        }
+
+        public ConfigurationBuilder<T> fromProperties(Properties properties) throws ConfigurationException {
+            return fromStore(new PropertiesStore(properties));
+        }
+
+        public ConfigurationBuilder<T> fromStore(Store store) {
+            return new ConfigurationBuilder<>(configurationInterface, store);
+        }
     }
 
-    public static <T> T fromProperties(Class<T> configurationInterface, Properties properties) throws ConfigurationException {
-        return fromStore(configurationInterface, new PropertiesStore(properties));
-    }
+    public static class ConfigurationBuilder<T> {
+        private final Class<T> configurationInterface;
+        private final Store store;
 
-    @SuppressWarnings("unchecked")
-    public static <T> T fromStore(Class<T> configurationInterface, Store store) throws ConfigurationException {
-        return (T) Proxy.newProxyInstance(
-                configurationInterface.getClassLoader(),
-                new Class[]{configurationInterface},
-                InterfaceParser.parse(configurationInterface, store)
-        );
+        private ConfigurationBuilder(Class<T> configurationInterface, Store store) {
+            this.configurationInterface = configurationInterface;
+            this.store = store;
+        }
+
+        @SuppressWarnings("unchecked")
+        public T done() throws ConfigurationException {
+            return (T) Proxy.newProxyInstance(
+                    configurationInterface.getClassLoader(),
+                    new Class[]{configurationInterface},
+                    InterfaceParser.parse(configurationInterface, store)
+            );
+        }
     }
 }

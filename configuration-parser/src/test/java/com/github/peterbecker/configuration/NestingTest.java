@@ -14,7 +14,7 @@ public class NestingTest {
     @Test
     public void testNestedInterfaces() throws Exception {
         Path testFile = Paths.get(StandardValueParsingTest.class.getResource("/nesting.properties").toURI());
-        NestingTestInterface config = Configuration.fromPropertiesFile(NestingTestInterface.class, testFile);
+        NestingTestInterface config = Configuration.loadInterface(NestingTestInterface.class).fromPropertiesFile(testFile).done();
         assertThat(config.toplevelInt(), equalTo(12));
         assertThat(config.toplevelDate(), equalTo(LocalDate.of(2012, 2, 3)));
         assertThat(config.nested().nestedInt(), equalTo(33));

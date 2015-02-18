@@ -14,7 +14,7 @@ public class CoreStuctureParsingTest {
     @Test
     public void testFromProperties() throws Exception {
         Path testFile = Paths.get(CoreStuctureParsingTest.class.getResource("/testConfig1.properties").toURI());
-        TestInterface1 config = Configuration.fromPropertiesFile(TestInterface1.class, testFile);
+        TestInterface1 config = Configuration.loadInterface(TestInterface1.class).fromPropertiesFile(testFile).done();
         assertThat(config.someValue(), equalTo("One"));
         assertThat(config.anotherValue(), equalTo("Two"));
     }
@@ -24,13 +24,13 @@ public class CoreStuctureParsingTest {
     )
     public void testMissingRequiredValue() throws Exception {
         Path testFile = Paths.get(CoreStuctureParsingTest.class.getResource("/missingValue.properties").toURI());
-        Configuration.fromPropertiesFile(TestInterface1.class, testFile);
+        Configuration.loadInterface(TestInterface1.class).fromPropertiesFile(testFile).done();
     }
 
     @Test
     public void testOptionalStringValueWhenPresent() throws Exception {
         Path testFile = Paths.get(CoreStuctureParsingTest.class.getResource("/testConfig1.properties").toURI());
-        TestInterface2 config = Configuration.fromPropertiesFile(TestInterface2.class, testFile);
+        TestInterface2 config = Configuration.loadInterface(TestInterface2.class).fromPropertiesFile(testFile).done();
         assertThat(config.someValue(), equalTo("One"));
         assertThat(config.anotherValue(), equalTo(Optional.of("Two")));
     }
@@ -38,7 +38,7 @@ public class CoreStuctureParsingTest {
     @Test
     public void testOptionalStringValueWhenAbsent() throws Exception {
         Path testFile = Paths.get(CoreStuctureParsingTest.class.getResource("/missingValue.properties").toURI());
-        TestInterface2 config = Configuration.fromPropertiesFile(TestInterface2.class, testFile);
+        TestInterface2 config = Configuration.loadInterface(TestInterface2.class).fromPropertiesFile(testFile).done();
         assertThat(config.someValue(), equalTo("One"));
         assertThat(config.anotherValue(), equalTo(Optional.empty()));
     }
