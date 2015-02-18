@@ -8,7 +8,10 @@ import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+import java.util.function.Function;
 
 /**
  * The main entry point for parsing configuration files.
@@ -47,10 +50,16 @@ public class Configuration {
     public static class ConfigurationBuilder<T> {
         private final Class<T> configurationInterface;
         private final Store store;
+        private final Map<Class<?>, Function<String, ?>> additionalValueParsers = new HashMap<>();
 
         private ConfigurationBuilder(Class<T> configurationInterface, Store store) {
             this.configurationInterface = configurationInterface;
             this.store = store;
+        }
+
+        public <V> ConfigurationBuilder<T> withValueParser(Class<V> valueType, Function<String, V> parser) {
+            additionalValueParsers.put(valueType, parser);
+            return this;
         }
 
         @SuppressWarnings("unchecked")
@@ -58,7 +67,7 @@ public class Configuration {
             return (T) Proxy.newProxyInstance(
                     configurationInterface.getClassLoader(),
                     new Class[]{configurationInterface},
-                    InterfaceParser.parse(configurationInterface, store)
+                    InterfaceParser.parse(configurationInterface, store, additionalValueParsers)
             );
         }
     }

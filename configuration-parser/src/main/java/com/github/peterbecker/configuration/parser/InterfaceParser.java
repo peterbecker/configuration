@@ -22,47 +22,47 @@ public class InterfaceParser {
      * In this map the two type wildcards are covariant, i.e. the return value of a function in the value position is
      * the class in the key position.
      */
-    private static final Map<Class<?>, Function<String, ?>> VALUE_PARSERS = new HashMap<>();
+    private static final Map<Class<?>, Function<String, ?>> DEFAULT_VALUE_PARSERS = new HashMap<>();
 
     static {
-        VALUE_PARSERS.put(String.class, Function.identity());
-        VALUE_PARSERS.put(Integer.class, Integer::valueOf);
-        VALUE_PARSERS.put(Integer.TYPE, Integer::parseInt);
-        VALUE_PARSERS.put(Long.class, Long::valueOf);
-        VALUE_PARSERS.put(Long.TYPE, Long::parseLong);
-        VALUE_PARSERS.put(Short.class, Short::valueOf);
-        VALUE_PARSERS.put(Short.TYPE, Short::parseShort);
-        VALUE_PARSERS.put(Byte.class, Byte::valueOf);
-        VALUE_PARSERS.put(Byte.TYPE, Byte::parseByte);
-        VALUE_PARSERS.put(Float.class, Float::valueOf);
-        VALUE_PARSERS.put(Float.TYPE, Float::parseFloat);
-        VALUE_PARSERS.put(Double.class, Double::valueOf);
-        VALUE_PARSERS.put(Double.TYPE, Double::parseDouble);
-        VALUE_PARSERS.put(Boolean.class, Boolean::valueOf);
-        VALUE_PARSERS.put(Boolean.TYPE, Boolean::parseBoolean);
-        VALUE_PARSERS.put(Character.class, InterfaceParser::getSoleCharacter);
-        VALUE_PARSERS.put(Character.TYPE, InterfaceParser::getSoleCharacter);
+        DEFAULT_VALUE_PARSERS.put(String.class, Function.identity());
+        DEFAULT_VALUE_PARSERS.put(Integer.class, Integer::valueOf);
+        DEFAULT_VALUE_PARSERS.put(Integer.TYPE, Integer::parseInt);
+        DEFAULT_VALUE_PARSERS.put(Long.class, Long::valueOf);
+        DEFAULT_VALUE_PARSERS.put(Long.TYPE, Long::parseLong);
+        DEFAULT_VALUE_PARSERS.put(Short.class, Short::valueOf);
+        DEFAULT_VALUE_PARSERS.put(Short.TYPE, Short::parseShort);
+        DEFAULT_VALUE_PARSERS.put(Byte.class, Byte::valueOf);
+        DEFAULT_VALUE_PARSERS.put(Byte.TYPE, Byte::parseByte);
+        DEFAULT_VALUE_PARSERS.put(Float.class, Float::valueOf);
+        DEFAULT_VALUE_PARSERS.put(Float.TYPE, Float::parseFloat);
+        DEFAULT_VALUE_PARSERS.put(Double.class, Double::valueOf);
+        DEFAULT_VALUE_PARSERS.put(Double.TYPE, Double::parseDouble);
+        DEFAULT_VALUE_PARSERS.put(Boolean.class, Boolean::valueOf);
+        DEFAULT_VALUE_PARSERS.put(Boolean.TYPE, Boolean::parseBoolean);
+        DEFAULT_VALUE_PARSERS.put(Character.class, InterfaceParser::getSoleCharacter);
+        DEFAULT_VALUE_PARSERS.put(Character.TYPE, InterfaceParser::getSoleCharacter);
 
-        VALUE_PARSERS.put(Color.class, InterfaceParser::decodeAwtColor);
-        VALUE_PARSERS.put(javafx.scene.paint.Color.class, javafx.scene.paint.Color::valueOf);
+        DEFAULT_VALUE_PARSERS.put(Color.class, InterfaceParser::decodeAwtColor);
+        DEFAULT_VALUE_PARSERS.put(javafx.scene.paint.Color.class, javafx.scene.paint.Color::valueOf);
 
-        VALUE_PARSERS.put(BigInteger.class, BigInteger::new);
-        VALUE_PARSERS.put(BigDecimal.class, BigDecimal::new);
+        DEFAULT_VALUE_PARSERS.put(BigInteger.class, BigInteger::new);
+        DEFAULT_VALUE_PARSERS.put(BigDecimal.class, BigDecimal::new);
 
-        VALUE_PARSERS.put(Duration.class, Duration::parse);
-        VALUE_PARSERS.put(Instant.class, Instant::parse);
-        VALUE_PARSERS.put(LocalDate.class, LocalDate::parse);
-        VALUE_PARSERS.put(LocalDateTime.class, LocalDateTime::parse);
-        VALUE_PARSERS.put(LocalTime.class, LocalTime::parse);
-        VALUE_PARSERS.put(MonthDay.class, MonthDay::parse);
-        VALUE_PARSERS.put(OffsetDateTime.class, OffsetDateTime::parse);
-        VALUE_PARSERS.put(OffsetTime.class, OffsetTime::parse);
-        VALUE_PARSERS.put(Period.class, Period::parse);
-        VALUE_PARSERS.put(Year.class, Year::parse);
-        VALUE_PARSERS.put(YearMonth.class, YearMonth::parse);
-        VALUE_PARSERS.put(ZonedDateTime.class, ZonedDateTime::parse);
-        VALUE_PARSERS.put(ZoneId.class, ZoneId::of);
-        VALUE_PARSERS.put(ZoneOffset.class, ZoneOffset::of);
+        DEFAULT_VALUE_PARSERS.put(Duration.class, Duration::parse);
+        DEFAULT_VALUE_PARSERS.put(Instant.class, Instant::parse);
+        DEFAULT_VALUE_PARSERS.put(LocalDate.class, LocalDate::parse);
+        DEFAULT_VALUE_PARSERS.put(LocalDateTime.class, LocalDateTime::parse);
+        DEFAULT_VALUE_PARSERS.put(LocalTime.class, LocalTime::parse);
+        DEFAULT_VALUE_PARSERS.put(MonthDay.class, MonthDay::parse);
+        DEFAULT_VALUE_PARSERS.put(OffsetDateTime.class, OffsetDateTime::parse);
+        DEFAULT_VALUE_PARSERS.put(OffsetTime.class, OffsetTime::parse);
+        DEFAULT_VALUE_PARSERS.put(Period.class, Period::parse);
+        DEFAULT_VALUE_PARSERS.put(Year.class, Year::parse);
+        DEFAULT_VALUE_PARSERS.put(YearMonth.class, YearMonth::parse);
+        DEFAULT_VALUE_PARSERS.put(ZonedDateTime.class, ZonedDateTime::parse);
+        DEFAULT_VALUE_PARSERS.put(ZoneId.class, ZoneId::of);
+        DEFAULT_VALUE_PARSERS.put(ZoneOffset.class, ZoneOffset::of);
     }
 
     /**
@@ -86,11 +86,16 @@ public class InterfaceParser {
         return s.charAt(0);
     }
 
-    public static <T> ConfigurationInvocationHandler<T> parse(Class<T> configClass, Store store) throws ConfigurationException {
-        return parse(configClass, store, Collections.emptyList());
+    public static <T> ConfigurationInvocationHandler<T> parse(
+            Class<T> configClass, Store store, Map<Class<?>, Function<String, ?>> additionalValueParsers) throws ConfigurationException {
+        Map<Class<?>, Function<String, ?>> valueParsers = new HashMap<>();
+        valueParsers.putAll(DEFAULT_VALUE_PARSERS);
+        valueParsers.putAll(additionalValueParsers);
+        return parse(configClass, store, valueParsers, Collections.emptyList());
     }
 
-    private static <T> ConfigurationInvocationHandler<T> parse(Class<T> configClass, Store store, List<String> context) throws ConfigurationException {
+    private static <T> ConfigurationInvocationHandler<T> parse(Class<T> configClass, Store store,
+                       Map<Class<?>, Function<String, ?>> valueParsers, List<String> context) throws ConfigurationException {
         Map<String, Object> data = new HashMap<>();
         for (Method method : configClass.getMethods()) {
             validateMethod(method);
@@ -104,9 +109,9 @@ public class InterfaceParser {
                         Proxy.newProxyInstance(
                                 returnType.getClassLoader(),
                                 new Class[]{returnType},
-                                parse(returnType, store, newContext)
+                                parse(returnType, store, valueParsers, newContext)
                         ));
-            } else if (returnType.isEnum()) {
+            } else if (returnType.isEnum() && !valueParsers.containsKey(returnType)) {
                 if (!value.isPresent()) {
                     throw new ConfigurationException("No value provided for mandatory option " + method.getName());
                 }
@@ -121,7 +126,7 @@ public class InterfaceParser {
                 }
             } else if (returnType.equals(Optional.class)) {
                 Class<?> actualType = (Class<?>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
-                if (actualType.isEnum()) {
+                if (actualType.isEnum() && !valueParsers.containsKey(actualType)) {
                     try {
                         Method valueOf = actualType.getMethod("valueOf", String.class);
                         data.put(
@@ -135,14 +140,14 @@ public class InterfaceParser {
                         throw new ConfigurationException("Can not find value " + value.get() + " for enum " + returnType.getCanonicalName());
                     }
                 } else {
-                    Function<String, ?> valueParser = getValueParser(method, actualType);
+                    Function<String, ?> valueParser = getValueParser(method, actualType, valueParsers);
                     data.put(method.getName(), value.map(valueParser));
                 }
             } else {
                 if (!value.isPresent()) {
                     throw new ConfigurationException("No value provided for mandatory option " + method.getName());
                 }
-                Function<String, ?> valueParser = getValueParser(method, returnType);
+                Function<String, ?> valueParser = getValueParser(method, returnType, valueParsers);
                 data.put(method.getName(), valueParser.apply(value.get()));
             }
         }
@@ -150,8 +155,9 @@ public class InterfaceParser {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> Function<String, T> getValueParser(Method method, Class<T> actualType) throws ConfigurationException {
-        Function<String, T> valueParser = (Function<String, T>) VALUE_PARSERS.get(actualType);
+    private static <T> Function<String, T> getValueParser(Method method, Class<T> actualType,
+                                                          Map<Class<?>, Function<String, ?>> valueParsers) throws ConfigurationException {
+        Function<String, T> valueParser = (Function<String, T>) valueParsers.get(actualType);
         if (valueParser == null) {
             throw new ConfigurationException(
                     String.format(
