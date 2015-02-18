@@ -3,6 +3,8 @@ package com.github.peterbecker.configuration;
 import org.junit.Test;
 
 import java.awt.Color;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.*;
@@ -68,6 +70,14 @@ public class StandardValueParsingTest {
         assertThat(config.requiredJavaFXColor(), equalTo(javafx.scene.paint.Color.BLACK));
         assertThat(config.presentOptionalJavaFXColor(), equalTo(Optional.of(javafx.scene.paint.Color.PURPLE)));
         assertThat(config.absentOptionalJavaFXColor(), equalTo(Optional.<Color>empty()));
+
+        assertThat(config.requiredBigInteger(), equalTo(new BigInteger("1234567890")));
+        assertThat(config.presentOptionalBigInteger(), equalTo(Optional.of(new BigInteger("987654321"))));
+        assertThat(config.absentOptionalBigInteger(), equalTo(Optional.<BigInteger>empty()));
+
+        assertThat(config.requiredBigDecimal(), equalTo(new BigDecimal("1234567.987654")));
+        assertThat(config.presentOptionalBigDecimal(), equalTo(Optional.of(new BigDecimal("9876.12345"))));
+        assertThat(config.absentOptionalBigDecimal(), equalTo(Optional.<BigDecimal>empty()));
     }
 
     /**

@@ -1,6 +1,8 @@
 package com.github.peterbecker.configuration;
 
 import java.awt.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Optional;
 
 /**
@@ -63,4 +65,12 @@ public interface TestInterfaceStandardValueTypes {
     javafx.scene.paint.Color requiredJavaFXColor();
     Optional<javafx.scene.paint.Color> presentOptionalJavaFXColor();
     Optional<javafx.scene.paint.Color> absentOptionalJavaFXColor();
+
+    BigInteger requiredBigInteger();
+    Optional<BigInteger> presentOptionalBigInteger();
+    Optional<BigInteger> absentOptionalBigInteger();
+
+    BigDecimal requiredBigDecimal();
+    Optional<BigDecimal> presentOptionalBigDecimal();
+    Optional<BigDecimal> absentOptionalBigDecimal();
 }

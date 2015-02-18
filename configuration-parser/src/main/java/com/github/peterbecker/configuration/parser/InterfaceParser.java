@@ -9,6 +9,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.*;
 import java.util.*;
 import java.util.function.Function;
@@ -43,6 +45,9 @@ public class InterfaceParser {
 
         VALUE_PARSERS.put(Color.class, InterfaceParser::decodeAwtColor);
         VALUE_PARSERS.put(javafx.scene.paint.Color.class, javafx.scene.paint.Color::valueOf);
+
+        VALUE_PARSERS.put(BigInteger.class, BigInteger::new);
+        VALUE_PARSERS.put(BigDecimal.class, BigDecimal::new);
 
         VALUE_PARSERS.put(Duration.class, Duration::parse);
         VALUE_PARSERS.put(Instant.class, Instant::parse);
