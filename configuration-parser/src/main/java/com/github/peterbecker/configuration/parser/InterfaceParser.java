@@ -3,6 +3,7 @@ package com.github.peterbecker.configuration.parser;
 import com.github.peterbecker.configuration.ConfigurationException;
 import com.github.peterbecker.configuration.storage.Key;
 import com.github.peterbecker.configuration.storage.Store;
+import com.github.peterbecker.configuration.v1.Option;
 
 import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
@@ -95,7 +96,7 @@ public class InterfaceParser {
     }
 
     private static <T> ConfigurationInvocationHandler<T> parse(Class<T> configClass, Store store,
-                       Map<Class<?>, Function<String, ?>> valueParsers, List<String> context) throws ConfigurationException {
+                                                               Map<Class<?>, Function<String, ?>> valueParsers, List<String> context) throws ConfigurationException {
         Map<String, Object> data = new HashMap<>();
         for (Method method : configClass.getMethods()) {
             validateMethod(method);
@@ -144,11 +145,19 @@ public class InterfaceParser {
                     data.put(method.getName(), value.map(valueParser));
                 }
             } else {
-                if (!value.isPresent()) {
-                    throw new ConfigurationException("No value provided for mandatory option " + method.getName());
+                String realValue;
+                if (value.isPresent()) {
+                    realValue = value.get();
+                } else {
+                    Option optionAnnotation = method.getAnnotation(Option.class);
+                    if (optionAnnotation != null && !optionAnnotation.defaultValue().equals(Option.NOT_SET)) {
+                        realValue = optionAnnotation.defaultValue();
+                    } else {
+                        throw new ConfigurationException("No value provided for mandatory option " + method.getName());
+                    }
                 }
                 Function<String, ?> valueParser = getValueParser(method, returnType, valueParsers);
-                data.put(method.getName(), valueParser.apply(value.get()));
+                data.put(method.getName(), valueParser.apply(realValue));
             }
         }
         return new ConfigurationInvocationHandler<>(configClass, data);
