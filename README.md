@@ -45,7 +45,7 @@ MyFirstConfiguration config =
                         done();
 ```
 
-The resulting 'config' object will have the values set that are given in the properties file.
+The resulting `config` object will have the values set that are given in the properties file.
 
 One important thing to notice here is that the configuration interface does not use anything beyond the JDK provided
 capabilities. This means that the configured components do not have any additional dependencies.
@@ -53,8 +53,8 @@ capabilities. This means that the configured components do not have any addition
 The interfaces also make testing easy: a test class can implement it in any way wanted, including just using an
 inner class.
 
-A number of value types are supported in this. This includes: `String`, all primitive types and their wrappers, all value
-types from `java.time.*`, `BigInteger`, `BigDecimal` and `Color` from both AWT and JavaFX. Most of these use standard
+A number of value types are supported in this. This includes: `String`, all primitive types and their wrappers; all value
+types from `java.time.*`; `BigInteger`, `BigDecimal` and `Color` from both AWT and JavaFX. Most of these use standard
 JDK methods to map them from Strings (e.g. `Integer::parseInt`). The exception is AWT's `Color` which follows the JavaFX
 pattern of using CSS-style encodings.
 
@@ -70,7 +70,7 @@ Two annotations are available: `@Configuration` and `@Option`. The former is a t
 functionality apart from making it clear to a reader of the code that the interface is intended as configuration. The
 `@Option` has additional functions.
 
-The first one is that it offers a `defaultValue` attribute that can be used to
+The first one is that `@Option` offers a `defaultValue` attribute that can be used to
 provide a string that is used in case no string is provided in the configuration input. This is different to using the
 `Optional` wrapper in that defaulting is invisible to the component using the configuration. If there is a default
 configured, the interface will always provide some value. `Optional` allows communicating the absence of a value
@@ -78,6 +78,24 @@ explicitly, but the code using it will need to handle it.
 
 `@Option` also has a `description` attribute, which can be used to document the function of the option. This is intended
 for command line usage, but that part is not yet implemented. At the moment it serves a role similar to JavaDoc.
+
+Using the annotations an interface looks like this:
+
+```java
+@Configuration
+public interface ConfigInterface {
+     @Option(
+        description = "This value has to be set"
+     )
+     int mandatoryValue();
+
+     @Option(
+        description = "This value will default to 53"
+        defaultValue = "53"
+     )
+     int defaultingValue();
+}
+```
 
 # Nesting Configurations
 
@@ -142,9 +160,9 @@ ConfigInterface config =
                 done();
 ```
 
-The example using Lambda syntax and assumes a static method like this:
+The example uses a static method handle and assumes a static method on `MyType` like this:
 
-```
+```java
 public static MyType parse(String input) {
     // parse and return value
 }
