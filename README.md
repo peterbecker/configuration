@@ -60,7 +60,7 @@ pattern of using CSS-style encodings.
 
 Any type but the primitives can be wrapped into an `Optional` to make it optional.
 
-# Advanced Setup
+# Advanced Setup With Annotations
 
 For advanced
 configuration options annotations are used, in which case these become a dependency. The annotations are in a separate
@@ -71,7 +71,11 @@ functionality apart from making it clear to a reader of the code that the interf
 `@Option` has additional functions.
 
 The first one is that `@Option` offers a `defaultValue` attribute that can be used to
-provide a string that is used in case no string is provided in the configuration input. This is different to using the
+provide a string that is used in case no string is provided in the configuration input. The string provided as default
+is processed in the same way a string in an input file would: it will be parsed into the return type specified in the
+interface.
+
+This is different to using the
 `Optional` wrapper in that defaulting is invisible to the component using the configuration. If there is a default
 configured, the interface will always provide some value. `Optional` allows communicating the absence of a value
 explicitly, but the code using it will need to handle it.
