@@ -31,7 +31,7 @@ aTextValue=some text
 anOptionalDate=2015-02-19
 ```
 
-In this file the first two items are mandatory, if either of them missing loading the configuraiton will fail. The date
+In this file the first two items are mandatory, if either of them is missing loading the configuration will fail. The date
 can be omitted, in which case the return value in the interface will be an empty `Optional`.
 
 To parse this configuration, the following code can be used:
