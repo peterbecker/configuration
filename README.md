@@ -2,13 +2,41 @@
 
 [![Build Status](https://travis-ci.org/peterbecker/configuration.svg?branch=master)](https://travis-ci.org/peterbecker/configuration)
 
-Early work in progress on a Java configuration library. Functional, but still limited. Tested, but not yet in anger.
+A Java configuration library, allowing loading configuration options for command-line tools in a very lightweight manner.
 
-This is intended to re-do some work I have done as closed source previously. The idea is to use interfaces with
+The core concept of this library is to use interfaces with
 annotated getters to define configuration data of components. These can then be parsed from various data sources.
 At the moment only property files are supported, but other formats and sources are planned (XML, YAML, JSON, CLI, JDBC).
 
 The parser in this library requires Java 8. The code using the interfaces can be in older Java versions.
+
+To use the configuration parser the following Maven dependency is needed:
+
+```
+<dependency>
+    <groupId>com.github.peterbecker</groupId>
+    <artifactId>configuration-parser</artifactId>
+    <version>1.0</version>
+</dependency>
+```
+
+If you want to use annotations for your configuration interfaces you need this dependency:
+
+```
+<dependency>
+    <groupId>com.github.peterbecker</groupId>
+    <artifactId>configuration-api</artifactId>
+    <version>1.0</version>
+</dependency>
+```
+
+The parser is required only for the modules using it, the annotation should sit where annotations
+are needed.
+
+For example: your database access layer might depend on the annotation API to allow documenting its configuration
+interface, whereas the scheduled job that uses the access layer will depend on the parser.
+
+Usage of the API is optional, which means library code can stay completely independent of this library.
 
 # Basic Usage
 
