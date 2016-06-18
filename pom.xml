@@ -37,6 +37,7 @@
     <modules>
         <module>configuration-api</module>
         <module>configuration-parser</module>
+        <module>configuration-yaml</module>
     </modules>
 
     <distributionManagement>
@@ -46,8 +47,36 @@
         </snapshotRepository>
     </distributionManagement>
 
-    <!-- No dependency management for now. The API is intended to have no external dependencies, so we can manage the
-         dependencies directly in the parser module. -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>1.17</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- some dependencies that do not affect the runtime -->
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.4.1</version>
+        </dependency>
+    </dependencies>
 
     <!-- From here everything is about setting up a stable Java 8 Maven project. This should be in a separate parent
          project, but for now we won't do that for ease of build/deployment. -->

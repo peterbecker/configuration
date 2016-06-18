@@ -1,8 +1,10 @@
 package com.github.peterbecker.configuration.storage;
 
-import lombok.Data;
 import lombok.NonNull;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -10,11 +12,19 @@ import java.util.stream.Collectors;
 /**
  * A Store implemented through a Properties object.
  */
-@Data
 public class PropertiesStore implements Store {
     private final
     @NonNull
     Properties properties;
+
+    public PropertiesStore(Path resource) throws IOException {
+        this.properties = new Properties();
+        properties.load(Files.newInputStream(resource));
+    }
+
+    public PropertiesStore(Properties properties) {
+        this.properties = properties;
+    }
 
     @Override
     public Optional<String> getValue(Key key) {

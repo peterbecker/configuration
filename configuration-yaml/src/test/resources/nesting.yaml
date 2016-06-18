@@ -1,0 +1,6 @@
+toplevelInt: 12
+toplevelDate: 2012-02-03
+nested:
+  nestedInt: 33
+  nestedDate: 2011-11-11
+  nestedOptionalTruth: true
