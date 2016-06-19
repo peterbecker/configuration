@@ -6,7 +6,8 @@ A Java configuration library, allowing loading configuration options for command
 
 The core concept of this library is to use interfaces with
 annotated getters to define configuration data of components. These can then be parsed from various data sources.
-At the moment only property files are supported, but other formats and sources are planned (XML, YAML, JSON, CLI, JDBC).
+At the moment only property files are supported, the development versions also support XML, JSON and YAML. Support
+for storing configuration in JDBC databases and for overriding settings on the command line is planned.
 
 The parser in this library requires Java 8. The code using the interfaces can be in older Java versions.
 
@@ -20,7 +21,9 @@ To use the configuration parser the following Maven dependency is needed:
 </dependency>
 ```
 
-If you want to use annotations for your configuration interfaces you need this dependency:
+If you want to use annotations for your configuration interfaces you need this dependency. This is implied by the parser
+dependency above, you need the explicit dependency only if you want to use the annotations in a library that does not
+depend on the parser.
 
 ```
 <dependency>
@@ -69,7 +72,7 @@ Path configFile = Paths.get("config.properties");
 MyFirstConfiguration config =
                 Configuration.
                         loadInterface(MyFirstConfiguration.class).
-                        fromPropertiesFile(configFile).
+                        fromStore(new PropertiesStore(configFile)).
                         done();
 ```
 
@@ -207,7 +210,7 @@ direct use, as well as indirect use such as `Optional<MyType>`.
 
 # State of the Project
 
-The project is under active development as of the time of writing (2015-02-19). All functionality described above works
+The project is under active development as of the time of writing (2016-06-19). All functionality described above works
 and is covered by unit tests.
 
 It is planned to have support for advanced features such as printing usage instructions, dumping actual
