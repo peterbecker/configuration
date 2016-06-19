@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<someRoot>
+    <toplevelInt>12</toplevelInt>
+    <toplevelDate>2012-02-03</toplevelDate>
+    <nested nestedInt="33" nestedDate="2011-11-11">
+        <nestedOptionalTruth>true</nestedOptionalTruth>
+    </nested>
+</someRoot>

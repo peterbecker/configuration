@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <setString>other text</setString>
+    <setInt>8</setInt>
+    <setDate>1971-11-22</setDate>
+    <setSpecialValue>3</setSpecialValue>
+</root>
+
