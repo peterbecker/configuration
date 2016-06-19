@@ -1,5 +1,6 @@
 package com.github.peterbecker.configuration;
 
+import com.github.peterbecker.configuration.storage.PropertiesStore;
 import org.junit.Test;
 
 import java.awt.Color;
@@ -18,7 +19,10 @@ public class StandardValueParsingTest {
     @Test
     public void testStandardValueParsing() throws Exception {
         Path testFile = Paths.get(StandardValueParsingTest.class.getResource("/valueTypes.properties").toURI());
-        TestInterfaceStandardValueTypes config = Configuration.loadInterface(TestInterfaceStandardValueTypes.class).fromPropertiesFile(testFile).done();
+        TestInterfaceStandardValueTypes config = Configuration
+                .loadInterface(TestInterfaceStandardValueTypes.class)
+                .fromStore(new PropertiesStore(testFile))
+                .done();
         assertThat(config.requiredString(), equalTo("Test"));
         assertThat(config.presentOptionalString(), equalTo(Optional.of("Also Test")));
         assertThat(config.absentOptionalString(), equalTo(Optional.<String>empty()));
@@ -82,7 +86,7 @@ public class StandardValueParsingTest {
 
     /**
      * Tests the types of JSR 310.
-     * <p/>
+     * <p>
      * This is testing one format each to ensure the wiring of the corresponding parse function is ok. We are not trying
      * to test all parse alternatives offered by the JSR 310 APIs. In some cases we are lazy enough to just parse the
      * expected value as well since other constructions are complicated.
@@ -90,7 +94,10 @@ public class StandardValueParsingTest {
     @Test
     public void testDateTime() throws Exception {
         Path testFile = Paths.get(StandardValueParsingTest.class.getResource("/dateTime.properties").toURI());
-        TestInterfaceDateAndTime config = Configuration.loadInterface(TestInterfaceDateAndTime.class).fromPropertiesFile(testFile).done();
+        TestInterfaceDateAndTime config = Configuration
+                .loadInterface(TestInterfaceDateAndTime.class)
+                .fromStore(new PropertiesStore(testFile))
+                .done();
         assertThat(config.duration(), equalTo(
                 Duration.ofMinutes(
                         TimeUnit.DAYS.toMinutes(2) + TimeUnit.HOURS.toMinutes(3) + 4

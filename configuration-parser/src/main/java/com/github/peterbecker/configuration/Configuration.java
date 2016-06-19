@@ -28,6 +28,10 @@ public class Configuration {
             this.configurationInterface = configurationInterface;
         }
 
+        /**
+         * @deprecated use <code>fromStore(new PropertiesStore(propertiesFile))</code> instead
+         */
+        @Deprecated
         public ConfigurationBuilder<T> fromPropertiesFile(Path propertiesFile) throws ConfigurationException {
             Properties properties = new Properties();
             try {
@@ -35,9 +39,13 @@ public class Configuration {
             } catch (IOException e) {
                 throw new ConfigurationException("Can not read properties file " + propertiesFile.toString(), e);
             }
-            return fromProperties(properties);
+            return fromStore(new PropertiesStore(properties));
         }
 
+        /**
+         * @deprecated use <code>fromStore(new PropertiesStore(properties))</code> instead
+         */
+        @Deprecated
         public ConfigurationBuilder<T> fromProperties(Properties properties) throws ConfigurationException {
             return fromStore(new PropertiesStore(properties));
         }
