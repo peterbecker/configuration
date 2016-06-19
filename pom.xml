@@ -37,6 +37,7 @@
     <modules>
         <module>configuration-api</module>
         <module>configuration-parser</module>
+        <module>configuration-json</module>
         <module>configuration-yaml</module>
     </modules>
 
@@ -53,6 +54,11 @@
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>1.17</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish</groupId>
+                <artifactId>javax.json</artifactId>
+                <version>1.0.4</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
