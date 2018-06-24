@@ -1,5 +1,6 @@
 package com.github.peterbecker.configuration;
 
+import com.github.peterbecker.configuration.storage.PropertiesStore;
 import org.junit.Test;
 
 import java.nio.file.Path;
@@ -16,7 +17,7 @@ public class SpecialValueTypeParsingTest {
         SpecialValueTypeTestInterface config =
                 Configuration.
                         loadInterface(SpecialValueTypeTestInterface.class).
-                        fromPropertiesFile(testFile).
+                        fromStore(new PropertiesStore(testFile)).
                         withValueParser(SpecialValueType.class, s -> SpecialValueType.fromInt(Integer.parseInt(s))).
                         done();
         assertThat(config.test1(), equalTo(SpecialValueType.NOT_SO_MANY));

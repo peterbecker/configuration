@@ -125,7 +125,7 @@ public interface ConfigInterface {
      int mandatoryValue();
 
      @Option(
-        description = "This value will default to 53"
+        description = "This value will default to 53",
         defaultValue = "53"
      )
      int defaultingValue();
