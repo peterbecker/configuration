@@ -99,6 +99,9 @@ public class InterfaceParser {
                                                                Map<Class<?>, Function<String, ?>> valueParsers, List<String> context) throws ConfigurationException {
         Map<String, Object> data = new HashMap<>();
         for (Method method : configClass.getMethods()) {
+            if(method.isDefault()) {
+                continue;
+            }
             validateMethod(method);
             Optional<String> value = store.getValue(new Key(context, method.getName()));
 
