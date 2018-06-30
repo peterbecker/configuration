@@ -28,14 +28,19 @@ public class PropertiesStore implements Store {
 
     @Override
     public Optional<String> getValue(Key key) {
+        return Optional.ofNullable(properties.getProperty(getPropertyKey(key)));
+    }
+
+    private String getPropertyKey(Key key) {
         String propKey;
-        if (key.getContext().isEmpty()) {
+        if (key.getContext() == Key.ROOT) {
             propKey = key.getOptionName();
         } else {
-            propKey = key.getContext().stream().collect(Collectors.joining(".")) +
-                    "." +
-                    key.getOptionName();
+            propKey = getPropertyKey(key.getContext()) + "." + key.getOptionName();
         }
-        return Optional.ofNullable(properties.getProperty(propKey));
+        if(key.getPosition() >= 0) {
+            propKey += "." + key.getPosition();
+        }
+        return propKey;
     }
 }

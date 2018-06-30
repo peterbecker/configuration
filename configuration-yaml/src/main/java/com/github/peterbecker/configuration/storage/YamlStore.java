@@ -10,6 +10,7 @@ import org.yaml.snakeyaml.resolver.Resolver;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -23,17 +24,27 @@ public class YamlStore implements Store {
                 new Representer(), // default
                 new DumperOptions(), // default
                 new CustomResolver());
-        data = (Map<String, Object>) yaml.load(Files.newBufferedReader(resource));
+        data = yaml.load(Files.newBufferedReader(resource));
+    }
+
+    @Override
+    public Optional<String> getValue(Key key) {
+        Map<String, Object> node = getNode(data, key);
+        return Optional.ofNullable(node.get(key.getOptionName())).map(Object::toString);
     }
 
     @SuppressWarnings("unchecked")
-    @Override
-    public Optional<String> getValue(Key key) {
-        Map<String, Object> node = data;
-        for (String nodeName : key.getContext()) {
-            node = (Map<String, Object>) node.get(nodeName);
+    private Map<String, Object> getNode(Map<String, Object> context, Key key) {
+        if(key == Key.ROOT) {
+            return context;
+        } else {
+            if(key.getPosition() < 0) {
+                return (Map<String, Object>) context.get(key.getOptionName());
+            } else {
+                List<Map<String,Object>> listNode = (List<Map<String, Object>>) context.get(key.getOptionName());
+                return listNode.get(key.getPosition());
+            }
         }
-        return Optional.ofNullable(node.get(key.getOptionName())).map(Object::toString);
     }
 
     private class CustomResolver extends Resolver {

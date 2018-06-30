@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <stringValues>First</stringValues>
+    <stringValues>Second</stringValues>
+    <stringValues>Third</stringValues>
+    <intValues>7</intValues>
+    <intValues>5</intValues>
+    <intValues>5</intValues>
+    <intValues>7</intValues>
+    <dates>1988-10-21</dates>
+    <dates>2015-10-21</dates>
+    <nested>
+        <nestedInt>456</nestedInt>
+        <nestedDate>2001-12-24</nestedDate>
+        <nestedOptionalTruth>true</nestedOptionalTruth>
+        <stringValues>001</stringValues>
+        <stringValues>007</stringValues>
+    </nested>
+    <nested>
+        <nestedInt>123</nestedInt>
+        <nestedDate>2001-12-31</nestedDate>
+    </nested>
+</root>

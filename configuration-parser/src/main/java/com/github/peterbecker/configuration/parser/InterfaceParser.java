@@ -92,78 +92,109 @@ public class InterfaceParser {
         Map<Class<?>, Function<String, ?>> valueParsers = new HashMap<>();
         valueParsers.putAll(DEFAULT_VALUE_PARSERS);
         valueParsers.putAll(additionalValueParsers);
-        return parse(configClass, store, valueParsers, Collections.emptyList());
+        return parse(configClass, store, valueParsers, Key.ROOT);
     }
 
     private static <T> ConfigurationInvocationHandler<T> parse(Class<T> configClass, Store store,
-                                                               Map<Class<?>, Function<String, ?>> valueParsers, List<String> context) throws ConfigurationException {
+                                                               Map<Class<?>, Function<String, ?>> valueParsers, Key context) throws ConfigurationException {
         Map<String, Object> data = new HashMap<>();
         for (Method method : configClass.getMethods()) {
-            if(method.isDefault()) {
+            if (method.isDefault()) {
                 continue;
             }
             validateMethod(method);
-            Optional<String> value = store.getValue(new Key(context, method.getName()));
-
             Class<?> returnType = method.getReturnType();
-            if (returnType.isInterface()) {
-                List<String> newContext = new ArrayList<>(context);
-                newContext.add(method.getName());
-                data.put(method.getName(),
-                        Proxy.newProxyInstance(
-                                returnType.getClassLoader(),
-                                new Class[]{returnType},
-                                parse(returnType, store, valueParsers, newContext)
-                        ));
-            } else if (returnType.isEnum() && !valueParsers.containsKey(returnType)) {
-                if (!value.isPresent()) {
-                    throw new ConfigurationException("No value provided for mandatory option " + method.getName());
-                }
+            if (returnType.equals(List.class)) {
+                Class<?> actualType = (Class<?>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
+                List<Object> result = new ArrayList<>();
+                int i = 0;
+                Optional<String> value;
+                do {
+                    if (actualType.isInterface()) {
+                        Key newContext = new Key(context, method.getName(), i);
+                        try {
+                            result.add(Proxy.newProxyInstance(
+                                    actualType.getClassLoader(),
+                                    new Class[]{actualType},
+                                    parse(actualType, store, valueParsers, newContext)));
+                            i++;
+                        } catch (ConfigurationException e) { // inelegant, but we are not too worried about performance here
+                            i = -1;
+                        }
+                    } else {
+                        value = store.getValue(new Key(context, method.getName(), i));
+                        if (value.isPresent()) {
+                            result.add(getValue(value, store, valueParsers, context, method, actualType));
+                            i++;
+                        } else {
+                            i = -1;
+                        }
+                    }
+                } while (i >= 0);
+                data.put(method.getName(), result);
+            } else {
+                Optional<String> value = store.getValue(new Key(context, method.getName(), -1));
+                data.put(method.getName(), getValue(value, store, valueParsers, context, method, returnType));
+            }
+        }
+        return new ConfigurationInvocationHandler<>(configClass, data);
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private static Object getValue(Optional<String> value, Store store, Map<Class<?>, Function<String, ?>> valueParsers, Key context, Method method, Class<?> returnType) throws ConfigurationException {
+        Object valueToStore;
+        if (returnType.isInterface()) {
+            Key newContext = new Key(context, method.getName(), -1);
+            valueToStore = Proxy.newProxyInstance(
+                    returnType.getClassLoader(),
+                    new Class[]{returnType},
+                    parse(returnType, store, valueParsers, newContext)
+            );
+        } else if (returnType.isEnum() && !valueParsers.containsKey(returnType)) {
+            if (!value.isPresent()) {
+                throw new ConfigurationException("No value provided for mandatory option " + method.getName());
+            }
+            try {
+                Method valueOf = returnType.getMethod("valueOf", String.class);
+                valueToStore = valueOf.invoke(null, value.get());
+            } catch (NoSuchMethodException e) {
+                // this should never happen, but we re-throw to be sure we know if it does
+                throw new ConfigurationException("Internal error, can not find valueOf method on enum", e);
+            } catch (InvocationTargetException | IllegalAccessException e) {
+                throw new ConfigurationException("Can not find value " + value.get() + " for enum " + returnType.getCanonicalName());
+            }
+        } else if (returnType.equals(Optional.class)) {
+            Class<?> actualType = (Class<?>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
+            if (actualType.isEnum() && !valueParsers.containsKey(actualType)) {
                 try {
-                    Method valueOf = returnType.getMethod("valueOf", String.class);
-                    data.put(method.getName(), valueOf.invoke(null, value.get()));
+                    Method valueOf = actualType.getMethod("valueOf", String.class);
+                    valueToStore = value.isPresent() ? Optional.of(valueOf.invoke(null, value.get())) : Optional.empty();
                 } catch (NoSuchMethodException e) {
                     // this should never happen, but we re-throw to be sure we know if it does
                     throw new ConfigurationException("Internal error, can not find valueOf method on enum", e);
                 } catch (InvocationTargetException | IllegalAccessException e) {
                     throw new ConfigurationException("Can not find value " + value.get() + " for enum " + returnType.getCanonicalName());
                 }
-            } else if (returnType.equals(Optional.class)) {
-                Class<?> actualType = (Class<?>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
-                if (actualType.isEnum() && !valueParsers.containsKey(actualType)) {
-                    try {
-                        Method valueOf = actualType.getMethod("valueOf", String.class);
-                        data.put(
-                                method.getName(),
-                                value.isPresent() ? Optional.of(valueOf.invoke(null, value.get())) : Optional.empty()
-                        );
-                    } catch (NoSuchMethodException e) {
-                        // this should never happen, but we re-throw to be sure we know if it does
-                        throw new ConfigurationException("Internal error, can not find valueOf method on enum", e);
-                    } catch (InvocationTargetException | IllegalAccessException e) {
-                        throw new ConfigurationException("Can not find value " + value.get() + " for enum " + returnType.getCanonicalName());
-                    }
-                } else {
-                    Function<String, ?> valueParser = getValueParser(method, actualType, valueParsers);
-                    data.put(method.getName(), value.map(valueParser));
-                }
             } else {
-                String realValue;
-                if (value.isPresent()) {
-                    realValue = value.get();
-                } else {
-                    Option optionAnnotation = method.getAnnotation(Option.class);
-                    if (optionAnnotation != null && !optionAnnotation.defaultValue().equals(Option.NOT_SET)) {
-                        realValue = optionAnnotation.defaultValue();
-                    } else {
-                        throw new ConfigurationException("No value provided for mandatory option " + method.getName());
-                    }
-                }
-                Function<String, ?> valueParser = getValueParser(method, returnType, valueParsers);
-                data.put(method.getName(), valueParser.apply(realValue));
+                Function<String, ?> valueParser = getValueParser(method, actualType, valueParsers);
+                valueToStore = value.map(valueParser);
             }
+        } else {
+            String realValue;
+            if (value.isPresent()) {
+                realValue = value.get();
+            } else {
+                Option optionAnnotation = method.getAnnotation(Option.class);
+                if (optionAnnotation != null && !optionAnnotation.defaultValue().equals(Option.NOT_SET)) {
+                    realValue = optionAnnotation.defaultValue();
+                } else {
+                    throw new ConfigurationException("No value provided for mandatory option " + method.getName());
+                }
+            }
+            Function<String, ?> valueParser = getValueParser(method, returnType, valueParsers);
+            valueToStore = valueParser.apply(realValue);
         }
-        return new ConfigurationInvocationHandler<>(configClass, data);
+        return valueToStore;
     }
 
     @SuppressWarnings("unchecked")

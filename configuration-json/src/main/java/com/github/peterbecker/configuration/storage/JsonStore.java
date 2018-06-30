@@ -1,8 +1,9 @@
 package com.github.peterbecker.configuration.storage;
 
-import com.github.peterbecker.configuration.ConfigurationException;
-
-import javax.json.*;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonValue;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,20 +19,17 @@ public class JsonStore implements Store {
 
     @Override
     public Optional<String> getValue(Key key) {
-        JsonObject node = data;
-        for (String nodeName : key.getContext()) {
-            if (!node.containsKey(nodeName)) {
-                return Optional.empty();
-            }
-            node = node.getJsonObject(nodeName);
+        Optional<JsonObject> node = getNode(data, key);
+        if(!node.isPresent()) {
+            return Optional.empty();
         }
-        JsonValue jsonValue = node.get(key.getOptionName());
+        JsonValue jsonValue = node.get().get(key.getOptionName());
         if (jsonValue == null) {
             return Optional.empty();
         }
         switch (jsonValue.getValueType()) {
             case STRING:
-                return Optional.of(node.getString(key.getOptionName()));
+                return Optional.of(node.get().getString(key.getOptionName()));
             case NUMBER:
             case TRUE:
             case FALSE:
@@ -41,6 +39,17 @@ public class JsonStore implements Store {
             case OBJECT:
             default:
                 return Optional.empty();
+        }
+    }
+
+    private Optional<JsonObject> getNode(JsonObject context, Key key) {
+        if(key == Key.ROOT) {
+            return Optional.of(context);
+        } else {
+            if (!context.containsKey(key.getOptionName())) {
+                return Optional.empty();
+            }
+            return Optional.of(context.getJsonObject(key.getOptionName()));
         }
     }
 }

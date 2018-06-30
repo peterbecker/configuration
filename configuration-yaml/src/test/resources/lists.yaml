@@ -1,0 +1,24 @@
+stringValues:
+ - First
+ - Second
+ - Third
+
+intValues:
+ - 7
+ - 5
+ - 5
+ - 7
+
+dates:
+ - 1988-10-21
+ - 2015-10-21
+
+nested:
+ - nestedInt: 456
+   nestedDate: 2001-12-24
+   nestedOptionalTruth: true
+   stringValues:
+    - 001
+    - 007
+ - nestedInt: 123
+   nestedDate: 2001-12-31
