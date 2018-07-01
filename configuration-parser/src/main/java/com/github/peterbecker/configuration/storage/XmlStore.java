@@ -42,7 +42,7 @@ public class XmlStore implements Store {
             XPath xpath = XPathFactory.newInstance().newXPath();
             NodeList nodes = (NodeList) xpath.evaluate(contextPath + "/" + getLocalPath(key), doc, XPathConstants.NODESET);
             if (nodes.getLength() == 0) {
-                if(key.getPosition() >= 0) {
+                if(key.isIndexed()) {
                     return Optional.empty();
                 }
                 nodes = (NodeList) xpath.evaluate(contextPath + "/@" + key.getOptionName(), doc, XPathConstants.NODESET);
@@ -69,6 +69,6 @@ public class XmlStore implements Store {
     }
 
     private String getLocalPath(Key key) {
-        return key.getOptionName() + (key.getPosition() >= 0 ? "[" + (key.getPosition() + 1) + "]" : "");
+        return key.getOptionName() + (key.isIndexed() ? "[" + (key.getIndex() + 1) + "]" : "");
     }
 }

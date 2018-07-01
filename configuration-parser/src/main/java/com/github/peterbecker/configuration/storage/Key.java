@@ -3,8 +3,6 @@ package com.github.peterbecker.configuration.storage;
 import lombok.Data;
 import lombok.NonNull;
 
-import java.util.List;
-
 /**
  * A reference into a configuration store.
  */
@@ -23,10 +21,18 @@ public class Key {
     /**
      * The position within a list. Set to -1 for single values.
      */
-    private final int position;
+    private final int index;
+
+    public boolean isIndexed() {
+        return index >= 0;
+    }
 
     /**
      * More readable version of null for use as {@linkplain #context}.
      */
     public static final Key ROOT = null;
+
+    public boolean isTopLevel() {
+        return context == Key.ROOT;
+    }
 }

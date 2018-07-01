@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@SuppressWarnings("unchecked")
 public class YamlStore implements Store {
     private final Map<String, Object> data;
 
@@ -28,22 +29,40 @@ public class YamlStore implements Store {
     }
 
     @Override
-    public Optional<String> getValue(Key key) {
-        Map<String, Object> node = getNode(data, key);
-        return Optional.ofNullable(node.get(key.getOptionName())).map(Object::toString);
+    public Optional<String> getValue(Key key) throws ConfigurationException {
+        return getNode(data,key).map(Object::toString);
     }
 
-    @SuppressWarnings("unchecked")
-    private Map<String, Object> getNode(Map<String, Object> context, Key key) {
-        if(key == Key.ROOT) {
-            return context;
+    private Optional<Object> getNode(Map<String, Object> context, Key key) throws ConfigurationException {
+        Optional<Object> node = getContextObject(context, key).map(o -> o.get(key.getOptionName()));
+        if(key.isIndexed()) {
+            node = node.map(object -> {
+                if(!(object instanceof List)) {
+                    return null;
+                }
+                List<Map<String,Object>> listNode = (List<Map<String, Object>>) object;
+                if(listNode.size() <= key.getIndex()) {
+                    return null;
+                }
+                return listNode.get(key.getIndex());
+            });
+        }
+        return node;
+    }
+
+    private Optional<Map<String, Object>> getContextObject(Map<String, Object> context, Key key) throws ConfigurationException {
+        if(key.isTopLevel()) {
+            return Optional.of(context);
         } else {
-            if(key.getPosition() < 0) {
-                return (Map<String, Object>) context.get(key.getOptionName());
-            } else {
-                List<Map<String,Object>> listNode = (List<Map<String, Object>>) context.get(key.getOptionName());
-                return listNode.get(key.getPosition());
+            Optional<Object> parent = getNode(context, key.getContext());
+            if (!parent.isPresent()) {
+                return Optional.empty();
             }
+            if (!(parent.get() instanceof Map)) {
+                throw new ConfigurationException(key.getOptionName() + " is not an object");
+            }
+            return Optional.of((Map)parent.get());
+
         }
     }
 

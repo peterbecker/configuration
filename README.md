@@ -91,6 +91,34 @@ pattern of using CSS-style encodings.
 
 Any type but the primitives can be wrapped into an `Optional` to make it optional.
 
+# Other Configuration File Formats
+
+The standard library supports using Java Properties files and XML as file formats. In the case of XML the configuration
+is expected within an arbitrary root element. An example XML file for the interface above would be:
+
+```xml
+<config>
+    <anIntegerValue>23</anIntegerValue>
+    <aTextValue>some text</aTextValue>
+    <anOptionalDate>2015-02-19</anOptionalDate>
+</config>
+```
+
+To load this XML, the following can be used:
+
+```java
+Path configFile = Paths.get("config.xml");
+MyFirstConfiguration config =
+                Configuration.
+                        loadInterface(MyFirstConfiguration.class).
+                        fromStore(new XmlStore(configFile)).
+                        done();
+```
+
+JSON and YAML are supported by separate modules, to use either of these format adds extra dependencies with the
+`artifactId` set to `configuration-json` and/or `configuration-yaml`.
+
+
 # Advanced Setup With Annotations
 
 For advanced
@@ -181,6 +209,28 @@ public Server {
 Here the `Socket` object is unaware of the the `ServerConfiguration`, all it knowns is the `SocketConfiguration`. Hence
 the components are cleanly separated.
 
+# Repeated Elements (Lists)
+
+It is possible to use the standard `java.util.List` interface as a return type. This will allow repeating the element
+in those formats that allow repeated elements (currently XML, JSON, YAML), in the properties format it will expect the
+index as an additional segment (0-based). For example:
+
+```properties
+strings.0=First
+strings.1=Second
+strings.2=Third
+```
+
+Above example would be a valid properties file for this interface:
+
+```java
+public interface MyConfig {
+    List<String> strings();
+}
+```
+
+Lists can be used in combination with any values, including nested interfaces.
+
 # Custom Value Parsing
 
 Values are parsed using handlers from Strings to the return type of the getters. Custom parsers can be registered as
@@ -207,21 +257,3 @@ Explicit `Function` instances or lambda expressions can be used as alternative t
 
 Once a parse function is registered, the value can be used in a configuration interface. This is true for both the
 direct use, as well as indirect use such as `Optional<MyType>`.
-
-# State of the Project
-
-The project is under active development as of the time of writing (2016-06-19). All functionality described above works
-and is covered by unit tests.
-
-It is planned to have support for advanced features such as printing usage instructions, dumping actual
-configuration into log files, and layering configuration sources to ease customization (e.g. default in classpath,
-overridden by file, overridden by command line).
-
-Target platform is Java 8, at least for the parser. The configuration interfaces do not require anything Java 8 specific,
-the use of `Optional` could be replaced with a default value that is recognizable as absence. In theory this means we
-could support anything back to Java 5 with full functionality, even older if defaults are not required. None of this
-is planned unless someone asks, though.
-
-There is no roadmap or schedule, but I'm available for questions.
-
-Check out the unit tests to see what works. See the issue list for more detail on what is intended.

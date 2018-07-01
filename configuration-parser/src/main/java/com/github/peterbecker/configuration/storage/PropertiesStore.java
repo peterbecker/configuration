@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 /**
  * A Store implemented through a Properties object.
@@ -33,13 +32,13 @@ public class PropertiesStore implements Store {
 
     private String getPropertyKey(Key key) {
         String propKey;
-        if (key.getContext() == Key.ROOT) {
+        if (key.isTopLevel()) {
             propKey = key.getOptionName();
         } else {
             propKey = getPropertyKey(key.getContext()) + "." + key.getOptionName();
         }
-        if(key.getPosition() >= 0) {
-            propKey += "." + key.getPosition();
+        if(key.isIndexed()) {
+            propKey += "." + key.getIndex();
         }
         return propKey;
     }
