@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 /**
  * A Store implemented through a Properties object.
@@ -28,14 +27,19 @@ public class PropertiesStore implements Store {
 
     @Override
     public Optional<String> getValue(Key key) {
+        return Optional.ofNullable(properties.getProperty(getPropertyKey(key)));
+    }
+
+    private String getPropertyKey(Key key) {
         String propKey;
-        if (key.getContext().isEmpty()) {
+        if (key.isTopLevel()) {
             propKey = key.getOptionName();
         } else {
-            propKey = key.getContext().stream().collect(Collectors.joining(".")) +
-                    "." +
-                    key.getOptionName();
+            propKey = getPropertyKey(key.getContext()) + "." + key.getOptionName();
         }
-        return Optional.ofNullable(properties.getProperty(propKey));
+        if(key.isIndexed()) {
+            propKey += "." + key.getIndex();
+        }
+        return propKey;
     }
 }

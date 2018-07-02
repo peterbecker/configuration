@@ -1,11 +1,8 @@
 package com.github.peterbecker.configuration.storage;
 
 import com.github.peterbecker.configuration.ConfigurationException;
-import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -19,7 +16,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * A Store implemented through an XML object.
@@ -41,13 +37,16 @@ public class XmlStore implements Store {
 
     @Override
     public Optional<String> getValue(Key key) throws ConfigurationException {
-        String contextPath = key.getContext().stream().reduce("/*", (a, b) -> a + "/" + b);
+        String contextPath = getContextPath(key.getContext());
         try {
             XPath xpath = XPathFactory.newInstance().newXPath();
-            NodeList nodes = (NodeList) xpath.evaluate(contextPath + "/" + key.getOptionName(), doc, XPathConstants.NODESET);
-            if(nodes.getLength() == 0) {
+            NodeList nodes = (NodeList) xpath.evaluate(contextPath + "/" + getLocalPath(key), doc, XPathConstants.NODESET);
+            if (nodes.getLength() == 0) {
+                if(key.isIndexed()) {
+                    return Optional.empty();
+                }
                 nodes = (NodeList) xpath.evaluate(contextPath + "/@" + key.getOptionName(), doc, XPathConstants.NODESET);
-                if(nodes.getLength() == 0) {
+                if (nodes.getLength() == 0) {
                     return Optional.empty();
                 }
             }
@@ -58,5 +57,18 @@ public class XmlStore implements Store {
         } catch (XPathExpressionException e) {
             throw new ConfigurationException("Can not identify node at " + contextPath, e);
         }
+    }
+
+    private String getContextPath(Key key) {
+        if (key == Key.ROOT) {
+            return "/*";
+        } else {
+
+            return getContextPath(key.getContext()) + "/" + getLocalPath(key);
+        }
+    }
+
+    private String getLocalPath(Key key) {
+        return key.getOptionName() + (key.isIndexed() ? "[" + (key.getIndex() + 1) + "]" : "");
     }
 }

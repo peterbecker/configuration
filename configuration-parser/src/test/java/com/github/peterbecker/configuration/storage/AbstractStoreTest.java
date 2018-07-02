@@ -1,7 +1,6 @@
 package com.github.peterbecker.configuration.storage;
 
 import com.github.peterbecker.configuration.*;
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -11,8 +10,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 /**
  * Base class for testing a store.
@@ -47,8 +45,8 @@ public abstract class AbstractStoreTest {
                 .loadInterface(TestInterface1.class)
                 .fromStore(getStore("basic"))
                 .done();
-        assertThat(config.someValue(), equalTo("One"));
-        assertThat(config.anotherValue(), equalTo("Two"));
+        assertThat(config.someValue()).isEqualTo("One");
+        assertThat(config.anotherValue()).isEqualTo("Two");
     }
 
     @Test(
@@ -67,8 +65,8 @@ public abstract class AbstractStoreTest {
                 .loadInterface(TestInterface2.class)
                 .fromStore(getStore("basic"))
                 .done();
-        assertThat(config.someValue(), equalTo("One"));
-        assertThat(config.anotherValue(), equalTo(Optional.of("Two")));
+        assertThat(config.someValue()).isEqualTo("One");
+        assertThat(config.anotherValue()).isEqualTo(Optional.of("Two"));
     }
 
     @Test
@@ -77,8 +75,8 @@ public abstract class AbstractStoreTest {
                 .loadInterface(TestInterface2.class)
                 .fromStore(getStore("missingValue"))
                 .done();
-        assertThat(config.someValue(), equalTo("One"));
-        assertThat(config.anotherValue(), equalTo(Optional.empty()));
+        assertThat(config.someValue()).isEqualTo("One");
+        assertThat(config.anotherValue()).isEqualTo(Optional.empty());
     }
 
     @Test
@@ -89,14 +87,14 @@ public abstract class AbstractStoreTest {
                         .fromStore(getStore("defaults"))
                         .withValueParser(SpecialValueType.class, s -> SpecialValueType.fromInt(Integer.parseInt(s)))
                         .done();
-        assertThat(config.defaultedString(), equalTo("text"));
-        assertThat(config.setString(), equalTo("other text"));
-        assertThat(config.defaultedInt(), equalTo(7));
-        assertThat(config.setInt(), equalTo(8));
-        assertThat(config.defaultedDate(), equalTo(LocalDate.of(2015, 2, 19)));
-        assertThat(config.setDate(), equalTo(LocalDate.of(1971, 11, 22)));
-        assertThat(config.defaultedSpecialValue(), equalTo(SpecialValueType.ONE));
-        assertThat(config.setSpecialValue(), equalTo(SpecialValueType.THREE));
+        assertThat(config.defaultedString()).isEqualTo("text");
+        assertThat(config.setString()).isEqualTo("other text");
+        assertThat(config.defaultedInt()).isEqualTo(7);
+        assertThat(config.setInt()).isEqualTo(8);
+        assertThat(config.defaultedDate()).isEqualTo(LocalDate.of(2015, 2, 19));
+        assertThat(config.setDate()).isEqualTo(LocalDate.of(1971, 11, 22));
+        assertThat(config.defaultedSpecialValue()).isEqualTo(SpecialValueType.ONE);
+        assertThat(config.setSpecialValue()).isEqualTo(SpecialValueType.THREE);
     }
 
     @Test
@@ -106,10 +104,40 @@ public abstract class AbstractStoreTest {
                         .loadInterface(NestingTestInterface.class)
                         .fromStore(getStore("nesting"))
                         .done();
-        assertThat(config.toplevelInt(), CoreMatchers.equalTo(12));
-        assertThat(config.toplevelDate(), CoreMatchers.equalTo(LocalDate.of(2012, 2, 3)));
-        assertThat(config.nested().nestedInt(), CoreMatchers.equalTo(33));
-        assertThat(config.nested().nestedDate(), CoreMatchers.equalTo(LocalDate.of(2011, 11, 11)));
-        assertThat(config.nested().nestedOptionalTruth(), CoreMatchers.equalTo(Optional.of(true)));
+        assertThat(config.toplevelInt()).isEqualTo(12);
+        assertThat(config.toplevelDate()).isEqualTo(LocalDate.of(2012, 2, 3));
+        assertThat(config.nested().nestedInt()).isEqualTo(33);
+        assertThat(config.nested().nestedDate()).isEqualTo(LocalDate.of(2011, 11, 11));
+        assertThat(config.nested().nestedOptionalTruth()).isEqualTo(Optional.of(true));
+    }
+
+    @Test
+    public void testLists() throws Exception {
+        ListTestInterface config = 
+                Configuration
+                .loadInterface(ListTestInterface.class)
+                .fromStore(getStore("lists"))
+                .done();
+        assertThat(config.stringValues()).containsExactly(
+                "First", "Second", "Third"
+        );
+        assertThat(config.intValues()).containsExactly(
+                7, 5, 5, 7
+        );
+        assertThat(config.dates()).containsExactly(
+                LocalDate.of(1988, 10, 21),
+                LocalDate.of(2015, 10, 21)
+        );
+        assertThat(config.nested()).hasSize(2);
+        NestedListTestInterface first = config.nested().get(0);
+        assertThat(first.nestedInt()).isEqualTo(456);
+        assertThat(first.nestedDate()).isEqualTo(LocalDate.of(2001, 12, 24));
+        assertThat(first.nestedOptionalTruth()).isEqualTo(Optional.of(true));
+        assertThat(first.stringValues()).containsExactly("001", "007");
+        NestedListTestInterface second = config.nested().get(1);
+        assertThat(second.nestedInt()).isEqualTo(123);
+        assertThat(second.nestedDate()).isEqualTo(LocalDate.of(2001, 12, 31));
+        assertThat(second.nestedOptionalTruth()).isEqualTo(Optional.empty());
+        assertThat(second.stringValues()).isEmpty();
     }
 }
