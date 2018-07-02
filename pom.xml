@@ -4,7 +4,7 @@
 
     <groupId>com.github.peterbecker</groupId>
     <artifactId>configuration</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.1</version>
     <packaging>pom</packaging>
 
     <name>configuration-parent</name>
@@ -31,7 +31,7 @@
         <connection>scm:git:https://github.com/peterbecker/configuration.git</connection>
         <developerConnection>scm:git:https://github.com/peterbecker/configuration.git</developerConnection>
         <url>https://github.com/peterbecker/configuration.git</url>
-      <tag>HEAD</tag>
+      <tag>configuration-1.1</tag>
   </scm>
 
     <modules>
