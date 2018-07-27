@@ -17,7 +17,7 @@ To use the configuration parser the following Maven dependency is needed:
 <dependency>
     <groupId>com.github.peterbecker</groupId>
     <artifactId>configuration-parser</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
 </dependency>
 ```
 
@@ -29,7 +29,7 @@ depend on the parser.
 <dependency>
     <groupId>com.github.peterbecker</groupId>
     <artifactId>configuration-api</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
 </dependency>
 ```
 
