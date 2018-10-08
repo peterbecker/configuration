@@ -16,7 +16,8 @@ public class Key {
     /**
      * The name of the option in the configuration interface.
      */
-    private final @NonNull String optionName;
+    private final @NonNull
+    String optionName;
 
     /**
      * The position within a list. Set to -1 for single values.
@@ -34,5 +35,24 @@ public class Key {
 
     public boolean isTopLevel() {
         return context == Key.ROOT;
+    }
+
+    /**
+     * Renders the key in Object Graph Navigation Language.
+     */
+    public String toOgnl() {
+        if (isTopLevel()) {
+            return localOgnl();
+        } else {
+            return context.toOgnl() + "." + localOgnl();
+        }
+    }
+
+    private String localOgnl() {
+        if (isIndexed()) {
+            return optionName + "[" + index + "]";
+        } else {
+            return optionName;
+        }
     }
 }
