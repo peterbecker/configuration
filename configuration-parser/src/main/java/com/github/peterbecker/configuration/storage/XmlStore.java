@@ -51,11 +51,11 @@ public class XmlStore implements Store {
                 }
             }
             if (nodes.getLength() > 1) {
-                throw new ConfigurationException("More than one node matches " + contextPath);
+                throw new ConfigurationException("More than one node matches " + contextPath, key);
             }
             return Optional.of(nodes.item(0).getTextContent());
         } catch (XPathExpressionException e) {
-            throw new ConfigurationException("Can not identify node at " + contextPath, e);
+            throw new ConfigurationException("Can not identify node at " + contextPath, e, key);
         }
     }
 

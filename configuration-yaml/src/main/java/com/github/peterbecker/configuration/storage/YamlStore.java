@@ -59,7 +59,7 @@ public class YamlStore implements Store {
                 return Optional.empty();
             }
             if (!(parent.get() instanceof Map)) {
-                throw new ConfigurationException(key.getOptionName() + " is not an object");
+                throw new ConfigurationException(key.getOptionName() + " is not an object", key);
             }
             return Optional.of((Map)parent.get());
 

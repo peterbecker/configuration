@@ -1,0 +1,8 @@
+{
+  "toplevelInt": 12,
+  "toplevelDate": "2012-02-03",
+  "nested": {
+    "nestedInt": 33,
+    "nestedOptionalTruth": true
+  }
+}

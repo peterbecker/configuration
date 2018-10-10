@@ -1,6 +1,7 @@
 package com.github.peterbecker.configuration;
 
 import com.github.peterbecker.configuration.parser.InterfaceParser;
+import com.github.peterbecker.configuration.storage.Key;
 import com.github.peterbecker.configuration.storage.PropertiesStore;
 import com.github.peterbecker.configuration.storage.Store;
 
@@ -37,7 +38,7 @@ public class Configuration {
             try {
                 properties.load(Files.newInputStream(propertiesFile));
             } catch (IOException e) {
-                throw new ConfigurationException("Can not read properties file " + propertiesFile.toString(), e);
+                throw new ConfigurationException("Can not read properties file " + propertiesFile.toString(), e, Key.ROOT);
             }
             return fromStore(new PropertiesStore(properties));
         }
@@ -46,7 +47,7 @@ public class Configuration {
          * @deprecated use <code>fromStore(new PropertiesStore(properties))</code> instead
          */
         @Deprecated
-        public ConfigurationBuilder<T> fromProperties(Properties properties) throws ConfigurationException {
+        public ConfigurationBuilder<T> fromProperties(Properties properties) {
             return fromStore(new PropertiesStore(properties));
         }
 

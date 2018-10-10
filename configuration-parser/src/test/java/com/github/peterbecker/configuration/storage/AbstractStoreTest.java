@@ -14,7 +14,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 
 /**
  * Base class for testing a store.
- *
+ * <p>
  * To use implement the abstract methods and provide an input file for every call to the
  * {@linkplain #getStore(String)} method, using an extension matching your store type.
  */
@@ -53,10 +53,15 @@ public abstract class AbstractStoreTest {
             expected = ConfigurationException.class
     )
     public void testMissingRequiredValue() throws Exception {
-        Configuration
-                .loadInterface(TestInterface1.class)
-                .fromStore(getStore("missingValue"))
-                .done();
+        try {
+            Configuration
+                    .loadInterface(TestInterface1.class)
+                    .fromStore(getStore("missingValue"))
+                    .done();
+        } catch (ConfigurationException e) {
+            assertThat(e.getMessage()).isEqualTo("No value provided for mandatory option anotherValue");
+            throw e;
+        }
     }
 
     @Test
@@ -111,13 +116,28 @@ public abstract class AbstractStoreTest {
         assertThat(config.nested().nestedOptionalTruth()).isEqualTo(Optional.of(true));
     }
 
+    @Test(
+            expected = ConfigurationException.class
+    )
+    public void testMissingValueNested() throws Exception {
+        try {
+            Configuration
+                    .loadInterface(NestingTestInterface.class)
+                    .fromStore(getStore("nestedMissingValue"))
+                    .done();
+        } catch (ConfigurationException e) {
+            assertThat(e.getMessage()).isEqualTo("No value provided for mandatory option nestedDate in nested");
+            throw e;
+        }
+    }
+
     @Test
     public void testLists() throws Exception {
-        ListTestInterface config = 
+        ListTestInterface config =
                 Configuration
-                .loadInterface(ListTestInterface.class)
-                .fromStore(getStore("lists"))
-                .done();
+                        .loadInterface(ListTestInterface.class)
+                        .fromStore(getStore("lists"))
+                        .done();
         assertThat(config.stringValues()).containsExactly(
                 "First", "Second", "Third"
         );

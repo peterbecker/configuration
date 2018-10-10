@@ -47,7 +47,7 @@ public class JsonStore implements Store {
                 return Optional.empty();
             }
             if (parent.get().getValueType() != JsonValue.ValueType.OBJECT) {
-                throw new ConfigurationException(key.getOptionName() + " is not an object");
+                throw new ConfigurationException(key.getOptionName() + " is not an object", key);
             }
             return Optional.of(parent.get().asJsonObject());
         }

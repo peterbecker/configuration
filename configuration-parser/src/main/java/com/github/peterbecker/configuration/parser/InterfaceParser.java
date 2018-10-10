@@ -102,7 +102,7 @@ public class InterfaceParser {
             if (method.isDefault()) {
                 continue;
             }
-            validateMethod(method);
+            validateMethod(method, context);
             Class<?> returnType = method.getReturnType();
             if (returnType.equals(List.class)) {
                 Class<?> actualType = (Class<?>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
@@ -152,16 +152,16 @@ public class InterfaceParser {
             );
         } else if (returnType.isEnum() && !valueParsers.containsKey(returnType)) {
             if (!value.isPresent()) {
-                throw new ConfigurationException("No value provided for mandatory option " + method.getName());
+                throw new ConfigurationException("No value provided for mandatory option " + method.getName(), context);
             }
             try {
                 Method valueOf = returnType.getMethod("valueOf", String.class);
                 valueToStore = valueOf.invoke(null, value.get());
             } catch (NoSuchMethodException e) {
                 // this should never happen, but we re-throw to be sure we know if it does
-                throw new ConfigurationException("Internal error, can not find valueOf method on enum", e);
+                throw new ConfigurationException("Internal error, can not find valueOf method on enum", e, context);
             } catch (InvocationTargetException | IllegalAccessException e) {
-                throw new ConfigurationException("Can not find value " + value.get() + " for enum " + returnType.getCanonicalName());
+                throw new ConfigurationException("Can not find value " + value.get() + " for enum " + returnType.getCanonicalName(), context);
             }
         } else if (returnType.equals(Optional.class)) {
             Class<?> actualType = (Class<?>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
@@ -171,12 +171,12 @@ public class InterfaceParser {
                     valueToStore = value.isPresent() ? Optional.of(valueOf.invoke(null, value.get())) : Optional.empty();
                 } catch (NoSuchMethodException e) {
                     // this should never happen, but we re-throw to be sure we know if it does
-                    throw new ConfigurationException("Internal error, can not find valueOf method on enum", e);
+                    throw new ConfigurationException("Internal error, can not find valueOf method on enum", e, context);
                 } catch (InvocationTargetException | IllegalAccessException e) {
-                    throw new ConfigurationException("Can not find value " + value.get() + " for enum " + returnType.getCanonicalName());
+                    throw new ConfigurationException("Can not find value " + value.get() + " for enum " + returnType.getCanonicalName(), context);
                 }
             } else {
-                Function<String, ?> valueParser = getValueParser(method, actualType, valueParsers);
+                Function<String, ?> valueParser = getValueParser(method, actualType, valueParsers, context);
                 valueToStore = value.map(valueParser);
             }
         } else {
@@ -188,10 +188,10 @@ public class InterfaceParser {
                 if (optionAnnotation != null && !optionAnnotation.defaultValue().equals(Option.NOT_SET)) {
                     realValue = optionAnnotation.defaultValue();
                 } else {
-                    throw new ConfigurationException("No value provided for mandatory option " + method.getName());
+                    throw new ConfigurationException("No value provided for mandatory option " + method.getName(), context);
                 }
             }
-            Function<String, ?> valueParser = getValueParser(method, returnType, valueParsers);
+            Function<String, ?> valueParser = getValueParser(method, returnType, valueParsers, context);
             valueToStore = valueParser.apply(realValue);
         }
         return valueToStore;
@@ -199,7 +199,7 @@ public class InterfaceParser {
 
     @SuppressWarnings("unchecked")
     private static <T> Function<String, T> getValueParser(Method method, Class<T> actualType,
-                                                          Map<Class<?>, Function<String, ?>> valueParsers) throws ConfigurationException {
+                                                          Map<Class<?>, Function<String, ?>> valueParsers, Key context) throws ConfigurationException {
         Function<String, T> valueParser = (Function<String, T>) valueParsers.get(actualType);
         if (valueParser == null) {
             throw new ConfigurationException(
@@ -208,21 +208,21 @@ public class InterfaceParser {
                             actualType.getName(),
                             method.getClass().getName(),
                             method.getName()
-                    )
-            );
+                    ),
+                    context);
         }
         return valueParser;
     }
 
-    private static void validateMethod(Method method) throws ConfigurationException {
+    private static void validateMethod(Method method, Key context) throws ConfigurationException {
         if (method.getParameterCount() != 0) {
             throw new ConfigurationException(
                     String.format(
                             "Method %s#%s has parameters, configuration interfaces should not have any",
                             method.getClass().getName(),
                             method.getName()
-                    )
-            );
+                    ),
+                    context);
         }
     }
 }
