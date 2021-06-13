@@ -5,7 +5,6 @@ import com.github.peterbecker.configuration.storage.Key;
 import com.github.peterbecker.configuration.storage.Store;
 import com.github.peterbecker.configuration.v1.Option;
 
-import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -44,9 +43,6 @@ public class InterfaceParser {
         DEFAULT_VALUE_PARSERS.put(Character.class, InterfaceParser::getSoleCharacter);
         DEFAULT_VALUE_PARSERS.put(Character.TYPE, InterfaceParser::getSoleCharacter);
 
-        DEFAULT_VALUE_PARSERS.put(Color.class, InterfaceParser::decodeAwtColor);
-        DEFAULT_VALUE_PARSERS.put(javafx.scene.paint.Color.class, javafx.scene.paint.Color::valueOf);
-
         DEFAULT_VALUE_PARSERS.put(BigInteger.class, BigInteger::new);
         DEFAULT_VALUE_PARSERS.put(BigDecimal.class, BigDecimal::new);
 
@@ -64,17 +60,6 @@ public class InterfaceParser {
         DEFAULT_VALUE_PARSERS.put(ZonedDateTime.class, ZonedDateTime::parse);
         DEFAULT_VALUE_PARSERS.put(ZoneId.class, ZoneId::of);
         DEFAULT_VALUE_PARSERS.put(ZoneOffset.class, ZoneOffset::of);
-    }
-
-    /**
-     * Method to decode an AWT color encoded the JavaFX/web way.
-     * <p/>
-     * AWT has Color::decode, but that needs a full three byte integer value. JavaFX allows all CSS variants, including
-     * names.
-     */
-    private static Color decodeAwtColor(String s) {
-        javafx.scene.paint.Color color = javafx.scene.paint.Color.valueOf(s);
-        return new Color((float) color.getRed(), (float) color.getGreen(), (float) color.getBlue(), (float) color.getOpacity());
     }
 
     private static char getSoleCharacter(String s) {

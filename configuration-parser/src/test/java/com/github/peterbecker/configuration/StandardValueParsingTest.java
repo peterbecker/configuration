@@ -3,7 +3,6 @@ package com.github.peterbecker.configuration;
 import com.github.peterbecker.configuration.storage.PropertiesStore;
 import org.junit.Test;
 
-import java.awt.Color;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.file.Path;
@@ -13,8 +12,9 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+@SuppressWarnings("ConstantConditions")
 public class StandardValueParsingTest {
     @Test
     public void testStandardValueParsing() throws Exception {
@@ -66,14 +66,6 @@ public class StandardValueParsingTest {
         assertThat(config.presentOptionalCharacter(), equalTo(Optional.of('\u2603')));
         assertThat(config.absentOptionalCharacter(), equalTo(Optional.<Character>empty()));
         assertThat(config.requiredPrimitiveChar(), equalTo('\u270E'));
-
-        assertThat(config.requiredAWTColor(), equalTo(Color.RED));
-        assertThat(config.presentOptionalAWTColor(), equalTo(Optional.of(new Color(255, 165, 0))));
-        assertThat(config.absentOptionalAWTColor(), equalTo(Optional.<Color>empty()));
-
-        assertThat(config.requiredJavaFXColor(), equalTo(javafx.scene.paint.Color.BLACK));
-        assertThat(config.presentOptionalJavaFXColor(), equalTo(Optional.of(javafx.scene.paint.Color.PURPLE)));
-        assertThat(config.absentOptionalJavaFXColor(), equalTo(Optional.<Color>empty()));
 
         assertThat(config.requiredBigInteger(), equalTo(new BigInteger("1234567890")));
         assertThat(config.presentOptionalBigInteger(), equalTo(Optional.of(new BigInteger("987654321"))));
