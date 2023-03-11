@@ -58,14 +58,6 @@ public interface TestInterfaceStandardValueTypes {
     Optional<Character> absentOptionalCharacter();
     char requiredPrimitiveChar();
 
-    Color requiredAWTColor();
-    Optional<Color> presentOptionalAWTColor();
-    Optional<Color> absentOptionalAWTColor();
-
-    javafx.scene.paint.Color requiredJavaFXColor();
-    Optional<javafx.scene.paint.Color> presentOptionalJavaFXColor();
-    Optional<javafx.scene.paint.Color> absentOptionalJavaFXColor();
-
     BigInteger requiredBigInteger();
     Optional<BigInteger> presentOptionalBigInteger();
     Optional<BigInteger> absentOptionalBigInteger();

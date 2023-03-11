@@ -85,9 +85,8 @@ The interfaces also make testing easy: a test class can implement it in any way 
 inner class.
 
 A number of value types are supported in this. This includes: `String`, all primitive types and their wrappers; all value
-types from `java.time.*`; `BigInteger`, `BigDecimal` and `Color` from both AWT and JavaFX. Most of these use standard
-JDK methods to map them from Strings (e.g. `Integer::parseInt`). The exception is AWT's `Color` which follows the JavaFX
-pattern of using CSS-style encodings.
+types from `java.time.*`; `BigInteger`, and `BigDecimal`. Most of these use standard JDK methods to map them from 
+Strings (e.g. `Integer::parseInt`).
 
 Any type but the primitives can be wrapped into an `Optional` to make it optional.
 
