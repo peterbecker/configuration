@@ -2,6 +2,7 @@ package com.github.peterbecker.configuration.storage;
 
 import com.github.peterbecker.configuration.ConfigurationException;
 import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.representer.Representer;
@@ -18,11 +19,10 @@ import java.util.Optional;
 public class YamlStore implements Store {
     private final Map<String, Object> data;
 
-    @SuppressWarnings("unchecked")
     public YamlStore(Path resource) throws IOException {
         Yaml yaml = new Yaml(
-                new Constructor(), // default
-                new Representer(), // default
+                new Constructor(new LoaderOptions()), // default
+                new Representer(new DumperOptions()), // default
                 new DumperOptions(), // default
                 new CustomResolver());
         data = yaml.load(Files.newBufferedReader(resource));
@@ -55,18 +55,18 @@ public class YamlStore implements Store {
             return Optional.of(context);
         } else {
             Optional<Object> parent = getNode(context, key.getContext());
-            if (!parent.isPresent()) {
+            if (parent.isEmpty()) {
                 return Optional.empty();
             }
             if (!(parent.get() instanceof Map)) {
                 throw new ConfigurationException(key.getOptionName() + " is not an object");
             }
-            return Optional.of((Map)parent.get());
+            return Optional.of((Map<String, Object>)parent.get());
 
         }
     }
 
-    private class CustomResolver extends Resolver {
+    private static class CustomResolver extends Resolver {
         protected void addImplicitResolvers() {
             // no implicit resolving, that is up to the Configuration Parser
         }

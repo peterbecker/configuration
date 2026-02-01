@@ -2,8 +2,6 @@ package com.github.peterbecker.configuration.parser;
 
 import lombok.RequiredArgsConstructor;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -20,21 +18,9 @@ public class ConfigurationInvocationHandler<T> implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         assert configurationInterface.isAssignableFrom(proxy.getClass());
         if(method.isDefault()) {
-            return invokeDefaultMethod(proxy, method, args);
+            return InvocationHandler.invokeDefault(proxy, method, args);
         }
         assert args == null;
         return data.get(method.getName());
-    }
-
-    // heavily inspired by https://stackoverflow.com/a/49532463/19820
-    private Object invokeDefaultMethod(Object proxy, Method method, Object[] args) throws Throwable {
-        Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class
-                .getDeclaredConstructor(Class.class);
-        constructor.setAccessible(true);
-        return constructor.newInstance(method.getDeclaringClass())
-                .in(method.getDeclaringClass())
-                .unreflectSpecial(method, method.getDeclaringClass())
-                .bindTo(proxy)
-                .invokeWithArguments(args);
     }
 }
